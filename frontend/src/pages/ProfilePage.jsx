@@ -1,48 +1,87 @@
+import { useEffect, useState } from 'react';
+import { getProfile, updateProfile } from '../api/userAPI';
+import { getMyOrders, cancelOrder } from '../api/oderAPI';
 import '../styles/ProfilePage.css';
 
 function ProfilePage() {
+  const [user, setUser] = useState({});
+  const [orders, setOrders] = useState([]);
+  const [form, setForm] = useState({});
+  const [message, setMessage] = useState('');
+
+  const loadUser = async () => {
+    const data = await getProfile();
+    setUser(data);
+    setForm({ name: data.name, email: data.email });
+  };
+
+  const loadOrders = async () => {
+    const data = await getMyOrders();
+    setOrders(data);
+  };
+
+  useEffect(() => {
+    loadUser();
+    loadOrders();
+  }, []);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await updateProfile(form);
+      setMessage('✅ Cập nhật thành công!');
+    } catch {
+      setMessage('❌ Có lỗi khi cập nhật.');
+    }
+  };
+
+  const handleCancel = async (orderId) => {
+    await cancelOrder(orderId);
+    loadOrders();
+  };
+
   return (
-    <div className="profile-page">
+    <div className="profile-container">
       <h2>Thông tin cá nhân</h2>
-
-      <form className="profile-form">
-        <div className="form-section">
-          <label>Họ và tên</label>
-          <input type="text" defaultValue="Nguyễn Văn A" />
-        </div>
-        <div className="form-section">
-          <label>Email</label>
-          <input type="email" defaultValue="nguyenvana@example.com" disabled />
-        </div>
-        <div className="form-section">
-          <label>Số điện thoại</label>
-          <input type="text" defaultValue="0123456789" />
-        </div>
-        <div className="form-section">
-          <label>Địa chỉ</label>
-          <input type="text" defaultValue="123 Lê Lợi, Quận 1, TP.HCM" />
-        </div>
-        <button type="submit" className="update-btn">Cập nhật thông tin</button>
+      <form onSubmit={handleUpdate} className="profile-form">
+        <input name="name" value={form.name || ''} onChange={handleChange} placeholder="Tên" />
+        <input name="email" value={form.email || ''} onChange={handleChange} placeholder="Email" />
+        <input name="password" type="password" onChange={handleChange} placeholder="Mật khẩu mới (nếu cần)" />
+        <button type="submit">Cập nhật</button>
       </form>
+      {message && <p className="profile-message">{message}</p>}
 
-      <hr className="divider" />
-
-      <h3>Đổi mật khẩu</h3>
-      <form className="password-form">
-        <div className="form-section">
-          <label>Mật khẩu cũ</label>
-          <input type="password" placeholder="Nhập mật khẩu hiện tại" />
-        </div>
-        <div className="form-section">
-          <label>Mật khẩu mới</label>
-          <input type="password" placeholder="Mật khẩu mới" />
-        </div>
-        <div className="form-section">
-          <label>Nhập lại mật khẩu mới</label>
-          <input type="password" placeholder="Xác nhận mật khẩu mới" />
-        </div>
-        <button type="submit" className="update-btn">Đổi mật khẩu</button>
-      </form>
+      <h3>Lịch sử đơn hàng</h3>
+      <table className="orders-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Ngày</th>
+            <th>Tổng</th>
+            <th>Trạng thái</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {orders.map((o) => (
+            <tr key={o._id}>
+              <td>{o._id.slice(-6)}</td>
+              <td>{new Date(o.createdAt).toLocaleDateString()}</td>
+              <td>{o.totalPrice.toLocaleString()} VND</td>
+              <td>{o.status}</td>
+              <td>
+                {o.status === 'Chờ xác nhận' && (
+                  <button onClick={() => handleCancel(o._id)}>Huỷ</button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

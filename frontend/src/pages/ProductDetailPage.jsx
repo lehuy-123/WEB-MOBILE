@@ -1,58 +1,47 @@
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { fetchProductDetail, fetchProductReviews } from '../api/productAPI';
 import '../styles/ProductDetailPage.css';
 
 function ProductDetailPage() {
-  const product = {
-    name: 'iPhone 15 Pro Max 256GB',
-    image: 'https://via.placeholder.com/300x300',
-    price: 34999000,
-    description: 'iPhone 15 Pro Max là mẫu flagship mạnh nhất của Apple...',
-    specs: {
-      'Kích thước màn': '6.7 inches',
-      'Độ phân giải': '2796 x 1290',
-      'Công nghệ màn hình': 'Super Retina XDR OLED',
-      'Bộ nhớ trong': '256GB'
-    },
-    reviews: [
-      { user: 'Hải', rating: 5, comment: 'Sản phẩm rất tốt!' }
-    ]
-  };
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [reviews, setReviews] = useState([]);
+
+  useEffect(() => {
+    fetchProductDetail(id).then(setProduct);
+    fetchProductReviews(id).then(setReviews);
+  }, [id]);
+
+  if (!product) return <p>Đang tải sản phẩm...</p>;
 
   return (
-    <div className="product-detail">
-      <div className="product-main">
+    <div className="detail-container">
+      <div className="detail-header">
         <img src={product.image} alt={product.name} />
-        <div className="product-info">
+        <div className="info">
           <h2>{product.name}</h2>
           <p className="price">{product.price.toLocaleString()} VND</p>
           <p>{product.description}</p>
-          <div className="product-buttons">
-            <button>Thêm giỏ hàng</button>
-            <button>Yêu thích</button>
-            <button>So sánh</button>
-          </div>
+          <button>Thêm vào giỏ hàng</button>
         </div>
       </div>
 
-      <div className="product-specs">
+      <div className="specs">
         <h3>Thông số kỹ thuật</h3>
-        <table>
-          <tbody>
-            {Object.entries(product.specs).map(([label, value], index) => (
-              <tr key={index}>
-                <td>{label}</td>
-                <td>{value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ul>
+          {product.specs?.map((s, idx) => (
+            <li key={idx}><b>{s.key}:</b> {s.value}</li>
+          ))}
+        </ul>
       </div>
 
-      <div className="product-reviews">
-        <h3>Đánh giá sản phẩm</h3>
-        {product.reviews.map((review, index) => (
-          <div className="review" key={index}>
-            <strong>{review.user}</strong> - {review.rating}⭐
-            <p>{review.comment}</p>
+      <div className="reviews">
+        <h3>Đánh giá sản phẩm ({reviews.length})</h3>
+        {reviews.map((r, idx) => (
+          <div key={idx} className="review">
+            <p><strong>{r.user}</strong>: {r.comment}</p>
+            <span>⭐ {r.rating}/5</span>
           </div>
         ))}
       </div>

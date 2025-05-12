@@ -1,55 +1,53 @@
-.profile-page {
-  max-width: 700px;
-  margin: 40px auto;
-  background: #fff;
-  padding: 24px;
-  border-radius: 10px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.05);
-  font-family: Arial, sans-serif;
+.profile-container {
+  padding: 40px 60px;
+  max-width: 800px;
+  margin: auto;
 }
 
-.profile-page h2,
-.profile-page h3 {
-  color: #2d6cdf;
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 20px;
 }
 
-.form-section {
-  margin-bottom: 16px;
-}
-
-.form-section label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-}
-
-.form-section input {
-  width: 100%;
+.profile-form input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 14px;
 }
 
-.update-btn {
-  background-color: #2d6cdf;
+.profile-form button {
+  background-color: #1d66d1;
   color: white;
-  padding: 10px 20px;
   border: none;
+  padding: 10px;
   border-radius: 6px;
-  font-size: 14px;
   cursor: pointer;
+}
+
+.profile-message {
   margin-top: 10px;
+  font-weight: bold;
 }
 
-.update-btn:hover {
-  background-color: #1a4fbf;
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.divider {
-  margin: 40px 0;
-  border: 0;
-  height: 1px;
-  background-color: #ddd;
+.orders-table th,
+.orders-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.orders-table button {
+  padding: 4px 10px;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }

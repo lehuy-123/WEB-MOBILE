@@ -57,3 +57,16 @@ export const fetchFeaturedProducts = async () => {
   const res = await axios.get('http://localhost:5000/api/products/featured');
   return res.data;
 };
+
+
+// Lấy chi tiết 1 sản phẩm
+export const fetchProductDetail = async (id) => {
+  const res = await axios.get(`http://localhost:5000/api/products/${id}`);
+  return res.data;
+};
+
+// Lấy đánh giá sản phẩm
+export const fetchProductReviews = async (id) => {
+  const res = await axios.get(`http://localhost:5000/api/products/${id}/reviews`);
+  return res.data;
+};

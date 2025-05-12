@@ -1,50 +1,47 @@
-.checkout-page {
+.checkout-container {
+  padding: 40px 60px;
   max-width: 600px;
-  margin: 40px auto;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.05);
-  font-family: Arial, sans-serif;
+  margin: 0 auto;
+  background-color: #f7f9fc;
+  border-radius: 12px;
 }
 
-.checkout-page h2 {
-  color: #2d6cdf;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.checkout-form .form-group {
-  margin-bottom: 15px;
-}
-
-.checkout-form label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .checkout-form input,
 .checkout-form select {
-  width: 100%;
-  padding: 10px;
+  padding: 10px 14px;
   border: 1px solid #ccc;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
-.confirm-button {
-  width: 100%;
-  margin-top: 20px;
-  background-color: #2d6cdf;
-  color: white;
+.checkout-form label {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.checkout-form button {
+  margin-top: 10px;
   padding: 12px;
+  background-color: #1d66d1;
+  color: white;
   border: none;
   border-radius: 6px;
-  font-size: 15px;
   cursor: pointer;
+  font-size: 16px;
 }
 
-.confirm-button:hover {
-  background-color: #1a4fbf;
+.checkout-form button:hover {
+  background-color: #144ca3;
+}
+
+.checkout-message {
+  margin-top: 20px;
+  font-weight: bold;
+  color: green;
 }
