@@ -1,0 +1,55 @@
+.profile-page {
+  max-width: 700px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.05);
+  font-family: Arial, sans-serif;
+}
+
+.profile-page h2,
+.profile-page h3 {
+  color: #2d6cdf;
+  margin-bottom: 20px;
+}
+
+.form-section {
+  margin-bottom: 16px;
+}
+
+.form-section label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.form-section input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.update-btn {
+  background-color: #2d6cdf;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.update-btn:hover {
+  background-color: #1a4fbf;
+}
+
+.divider {
+  margin: 40px 0;
+  border: 0;
+  height: 1px;
+  background-color: #ddd;
+}
