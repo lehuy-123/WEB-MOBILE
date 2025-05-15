@@ -4,11 +4,16 @@ import '../styles/ProductCard.css';
 function ProductCard({ product }) {
   const hasValidPrice = typeof product.price === 'number';
 
+  // Tạo đường dẫn ảnh đầy đủ nếu có ảnh
+  const imageUrl = product.image
+    ? `http://localhost:5001/uploads/${product.image}`
+    : '/images/placeholder.png';
+
   return (
     <div className="product-card">
       <Link to={`/product/${product._id}`} className="product-image-wrapper">
         <img
-          src={product.image || '/images/placeholder.png'}
+          src={imageUrl}
           alt={product.name || 'Sản phẩm'}
           className="product-image"
         />

@@ -1,5 +1,4 @@
-// src/pages/admin/AdminProducts.jsx
-
+// AdminProducts.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ProductForm from '../../components/ProductForm';
@@ -10,16 +9,20 @@ const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [keyword, setKeyword] = useState('');
-  const [editingProduct, setEditingProduct] = useState(null); // ✅ thêm state để sửa sản phẩm
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     fetchAllProducts()
       .then((data) => {
         setProducts(data);
         setFiltered(data);
+        setLoading(false);
       })
       .catch((err) => {
         console.error('Lỗi khi tải sản phẩm:', err);
+        setLoading(false);
       });
   }, []);
 
@@ -32,6 +35,11 @@ const AdminProducts = () => {
 
   const handleDelete = async (id) => {
     const token = JSON.parse(localStorage.getItem('user'))?.token;
+    if (!token) {
+      alert('❌ Vui lòng đăng nhập để thực hiện thao tác này');
+      return;
+    }
+
     const confirmDelete = window.confirm('Bạn có chắc chắn muốn xoá sản phẩm này không?');
     if (!confirmDelete) return;
 
@@ -44,42 +52,46 @@ const AdminProducts = () => {
       alert('✅ Xoá sản phẩm thành công');
     } catch (err) {
       console.error('❌ Lỗi khi xoá sản phẩm:', err);
-      alert('Xoá sản phẩm thất bại');
+      alert('Xoá sản phẩm thất bại: ' + (err.response?.data?.message || err.message));
     }
   };
 
   const handleSaveProduct = async (productData) => {
     const token = JSON.parse(localStorage.getItem('user'))?.token;
+    if (!token) {
+      alert('❌ Vui lòng đăng nhập để thực hiện thao tác này');
+      return;
+    }
 
     try {
       let response;
-
       if (editingProduct) {
         response = await axios.put(`http://localhost:5001/api/products/${editingProduct._id}`, productData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert('✅ Cập nhật sản phẩm thành công');
-        setProducts(prev =>
-          prev.map(p => (p._id === editingProduct._id ? response.data : p))
-        );
-        setFiltered(prev =>
-          prev.map(p => (p._id === editingProduct._id ? response.data : p))
-        );
       } else {
         response = await axios.post('http://localhost:5001/api/products', productData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert('✅ Thêm sản phẩm thành công');
-        setProducts(prev => [...prev, response.data]);
-        setFiltered(prev => [...prev, response.data]);
       }
 
-      setEditingProduct(null); // reset form
+      setProducts(prev => {
+        const newProducts = editingProduct
+          ? prev.map(p => p._id === response.data._id ? response.data : p)
+          : [...prev, response.data];
+        setFiltered(newProducts);
+        return newProducts;
+      });
+      setEditingProduct(null);
     } catch (err) {
       console.error('❌ Lỗi khi lưu sản phẩm:', err);
-      alert('Thao tác thất bại');
+      alert('Thao tác thất bại: ' + (err.response?.data?.message || err.message));
     }
   };
+
+  if (loading) return <p>Đang tải...</p>;
 
   return (
     <div className="admin-products">
@@ -111,10 +123,14 @@ const AdminProducts = () => {
             {filtered.map((p, index) => (
               <tr key={index}>
                 <td>{p.name || 'Không có tên'}</td>
-                <td>{typeof p.price === 'number' ? `${p.price.toLocaleString()} VND` : 'Chưa cập nhật'}</td>
+                <td>
+                  {p.price != null && typeof p.price === 'number'
+                    ? `${p.price.toLocaleString()} VND`
+                    : 'Chưa cập nhật'}
+                </td>
                 <td>
                   {p.image ? (
-                    <img src={p.image} alt={p.name || 'ảnh sản phẩm'} height={40} />
+                    <img src={`http://localhost:5001/uploads/${p.image}`} alt={p.name} height={40} />
                   ) : (
                     'Không có ảnh'
                   )}

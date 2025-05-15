@@ -11,6 +11,8 @@ const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes'); // ✅ Thêm dòng này
+const path = require('path');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 
 
@@ -30,6 +32,8 @@ app.use(morgan('dev'));
 app.use('/api/brands', brandRoutes);
 
 
+
+
 // ✅ Import route cần dùng trong giai đoạn hiện tại
 const bannerRoutes = require('./routes/bannerRoutes'); // Giai đoạn BE.01
 
@@ -41,6 +45,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payment-methods', paymentRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes); // ✅ Gắn thêm dòng này
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+app.use('/api/upload', uploadRoutes);
 
 
 // Route test mặc định

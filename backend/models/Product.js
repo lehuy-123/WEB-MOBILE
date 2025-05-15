@@ -14,9 +14,10 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   brand: String,
   category: String,
-  description: String, // mô tả ngắn
-  content: String, // bài viết mô tả chi tiết (hiển thị dưới trang sản phẩm)
-  variants: [variantSchema], // ✅ danh sách các biến thể
+  description: String,
+  content: String,
+  image: { type: String, default: "" }, // ✅ THÊM DÒNG NÀY
+  variants: [variantSchema],
   sold: {
     type: Number,
     default: 0

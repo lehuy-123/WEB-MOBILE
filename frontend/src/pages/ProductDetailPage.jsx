@@ -20,13 +20,17 @@ function ProductDetailPage() {
       <Helmet>
         <title>{product.name} | MiniTech</title>
         <meta name="description" content={product.description || 'Sản phẩm công nghệ chất lượng'} />
-        <meta property="og:image" content={product.image} />
+        <meta property="og:image" content={`http://localhost:5001/uploads/${product.image}`} />
         <meta property="og:title" content={product.name} />
       </Helmet>
 
       <article className="product-detail-card">
         <figure className="product-image-wrapper">
-          <img src={product.image} alt={product.name} className="product-image" />
+          <img
+            src={`http://localhost:5001/uploads/${product.image}`}
+            alt={product.name}
+            className="product-image"
+          />
         </figure>
 
         <section className="product-info">

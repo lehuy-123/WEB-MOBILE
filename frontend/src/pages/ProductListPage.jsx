@@ -22,7 +22,7 @@ function ProductListPage() {
 
   const handleSearch = () => {
     const results = products.filter(p =>
-      p.name.toLowerCase().includes(keyword.toLowerCase())
+      p.name?.toLowerCase().includes(keyword.toLowerCase())
     );
     setFiltered(results);
   };
@@ -47,9 +47,21 @@ function ProductListPage() {
         <div className="product-grid">
           {filtered.map(p => (
             <div key={p._id || p.id} className="product-card">
-              <img src={p.image} alt={p.name} />
+              {p.image ? (
+                <img
+                  src={`http://localhost:5001/uploads/${p.image}`}
+                  alt={p.name}
+                  className="product-image"
+                />
+              ) : (
+                <div className="no-image">Không có ảnh</div>
+              )}
               <h4>{p.name}</h4>
-              <p>{Number(p.price).toLocaleString()} VND</p>
+              <p>
+                {typeof p.price === 'number'
+                  ? `${p.price.toLocaleString()} VND`
+                  : 'Chưa có giá'}
+              </p>
               <button>Thêm vào giỏ</button>
             </div>
           ))}
