@@ -1,66 +1,54 @@
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
 
-// @route   POST /api/auth/register
-// @desc    Đăng ký tài khoản
-// @access  Public
-const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
+// Đăng ký tài khoản
+exports.registerUser = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
 
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    return res.status(400).json({ message: 'Email đã tồn tại' });
-  }
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: 'Email đã được sử dụng!' });
+    }
 
-  const user = await User.create({ name, email, password });
+    const hashedPassword = await bcrypt.hash(password, 10); // ✅ Mã hóa mật khẩu
 
-  if (user) {
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user)
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role: 'user', // mặc định là user
     });
-  } else {
-    res.status(400).json({ message: 'Tạo tài khoản thất bại' });
+
+    await user.save();
+
+    res.status(201).json({ message: 'Đăng ký thành công!' });
+  } catch (err) {
+    console.error('❌ Lỗi đăng ký:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ khi đăng ký.' });
   }
 };
 
-// @route   POST /api/auth/login
-// @desc    Đăng nhập và trả token
-// @access  Public
-const loginUser = async (req, res) => {
+// Đăng nhập tài khoản
+exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
-  if (user && (await user.matchPassword(password))) {
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user)
-    });
-  } else {
-    res.status(401).json({ message: 'Email hoặc mật khẩu không đúng' });
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).json({ message: 'Sai tài khoản hoặc mật khẩu' });
   }
-};
 
-// @route   GET /api/auth/profile
-// @desc    Trả thông tin người dùng đã đăng nhập
-// @access  Private
-const getUserProfile = async (req, res) => {
-  const user = await User.findById(req.user._id).select('-password');
-  if (user) {
-    res.json(user);
-  } else {
-    res.status(404).json({ message: 'Không tìm thấy người dùng' });
-  }
-};
+  const token = jwt.sign(
+    { id: user._id, role: user.role },
+    'your-secret',
+    { expiresIn: '1d' }
+  );
 
-module.exports = {
-  registerUser,
-  loginUser,
-  getUserProfile
+  res.json({
+    token,
+    role: user.role,
+    name: user.name,
+    email: user.email,
+  });
 };

@@ -1,19 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const {
-  registerUser,
-  loginUser,
-  getUserProfile
-} = require('../controllers/authController');
-const { protect } = require('../middleware/authMiddleware');
 
-// Đăng ký tài khoản
+const { registerUser, login } = require('../controllers/authController');
+
+// ✅ Route đăng ký tài khoản
 router.post('/register', registerUser);
 
-// Đăng nhập tài khoản
-router.post('/login', loginUser);
-
-// Lấy thông tin cá nhân người dùng (cần token)
-router.get('/profile', protect, getUserProfile);
+// ✅ Route đăng nhập
+router.post('/login', login);
 
 module.exports = router;

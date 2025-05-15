@@ -1,3 +1,4 @@
+// src/pages/ProductDetailPage.jsx
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchProductById } from '../api/productAPI';
@@ -30,7 +31,13 @@ function ProductDetailPage() {
 
         <section className="product-info">
           <h1>{product.name}</h1>
-          <p className="product-price">Giá: <strong style={{ color: 'red' }}>{product.price.toLocaleString()} VND</strong></p>
+          <p className="product-price">
+            Giá: <strong style={{ color: 'red' }}>
+              {typeof product.price === 'number'
+                ? product.price.toLocaleString() + ' VND'
+                : 'Chưa cập nhật'}
+            </strong>
+          </p>
           <p><strong>Thương hiệu:</strong> {product.brand}</p>
           <p><strong>RAM:</strong> {product.ram || 'Đang cập nhật'}</p>
           <p><strong>Bộ nhớ:</strong> {product.storage || 'Đang cập nhật'}</p>

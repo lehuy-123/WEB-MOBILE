@@ -1,33 +1,55 @@
-import '../styles/RegisterPage.css';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-function RegisterPage() {
+const RegisterPage = () => {
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:5001/api/auth/register', form);
+      alert('✅ Đăng ký thành công, mời bạn đăng nhập');
+      navigate('/login');
+    } catch (err) {
+      alert('❌ Đăng ký thất bại: ' + (err.response?.data?.message || 'Lỗi không xác định'));
+      console.error(err);
+    }
+  };
+
   return (
-    <div className="register-page">
-      <div className="form-container">
-        <h2>Đăng ký tài khoản</h2>
-        <form>
-          <div className="form-group">
-            <label>Họ và tên</label>
-            <input type="text" placeholder="Nhập họ tên" />
-          </div>
-          <div className="form-group">
-            <label>Email</label>
-            <input type="email" placeholder="example@gmail.com" />
-          </div>
-          <div className="form-group">
-            <label>Mật khẩu</label>
-            <input type="password" placeholder="Nhập mật khẩu" />
-          </div>
-          <div className="form-group">
-            <label>Nhập lại mật khẩu</label>
-            <input type="password" placeholder="Xác nhận mật khẩu" />
-          </div>
-          <button type="submit" className="register-btn">Đăng ký</button>
-        </form>
-        <p className="redirect">Đã có tài khoản? <a href="/login">Đăng nhập</a></p>
-      </div>
+    <div className="register-container">
+      <h2>Đăng ký tài khoản</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          name="name"
+          onChange={handleChange}
+          placeholder="Tên người dùng"
+          required
+        />
+        <input
+          name="email"
+          type="email"
+          onChange={handleChange}
+          placeholder="Email"
+          required
+        />
+        <input
+          name="password"
+          type="password"
+          onChange={handleChange}
+          placeholder="Mật khẩu"
+          required
+        />
+        <button type="submit">Đăng ký</button>
+      </form>
     </div>
   );
-}
+};
 
 export default RegisterPage;

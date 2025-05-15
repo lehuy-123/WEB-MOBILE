@@ -1,47 +1,103 @@
 // src/components/ProductForm.jsx
-import { useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
 import '../styles/AdminProducts.css';
 
-function ProductForm({ onSubmit }) {
+function ProductForm({ onSubmit, editingProduct }) {
   const [form, setForm] = useState({
     name: '',
-    image: '',
     brand: '',
     category: '',
-    price: '',
-    description: ''
+    description: '',
+    variants: [{ color: '', ram: '', storage: '', price: '', stock: '', image: '' }]
   });
+
+  useEffect(() => {
+    if (editingProduct) {
+      setForm({
+        name: editingProduct.name || '',
+        brand: editingProduct.brand || '',
+        category: editingProduct.category || '',
+        description: editingProduct.description || '',
+        variants: editingProduct.variants?.length
+          ? editingProduct.variants
+          : [{ color: '', ram: '', storage: '', price: '', stock: '', image: '' }]
+      });
+    }
+  }, [editingProduct]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleVariantChange = (index, e) => {
+    const updated = [...form.variants];
+    updated[index][e.target.name] = e.target.value;
+    setForm({ ...form, variants: updated });
+  };
+
+  const addVariant = () => {
+    setForm({
+      ...form,
+      variants: [...form.variants, { color: '', ram: '', storage: '', price: '', stock: '', image: '' }]
+    });
+  };
+
+  const removeVariant = (index) => {
+    const updated = form.variants.filter((_, i) => i !== index);
+    setForm({ ...form, variants: updated });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const res = await axios.post('http://localhost:5001/api/products', form);
-      if (res.status === 201) {
-        alert('✅ Thêm sản phẩm thành công');
-        onSubmit(res.data);
-        setForm({ name: '', image: '', brand: '', category: '', price: '', description: '' });
-      }
-    } catch (err) {
-      console.error('❌ Thêm sản phẩm thất bại:', err);
-      alert('Thêm thất bại, kiểm tra dữ liệu');
+    const mainPrice = Number(form.variants[0]?.price || 0);
+    const mainImage = form.variants[0]?.image || '';
+
+    const productData = {
+      ...form,
+      price: mainPrice,
+      image: mainImage,
+    };
+
+    onSubmit && onSubmit(productData);
+
+    if (!editingProduct) {
+      setForm({
+        name: '', brand: '', category: '', description: '',
+        variants: [{ color: '', ram: '', storage: '', price: '', stock: '', image: '' }]
+      });
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="product-form">
-      <h3>➕ Thêm sản phẩm</h3>
-      <input name="name" value={form.name} onChange={handleChange} placeholder="Tên sản phẩm" required />
-      <input name="image" value={form.image} onChange={handleChange} placeholder="Link ảnh" required />
-      <input name="brand" value={form.brand} onChange={handleChange} placeholder="Thương hiệu" />
-      <input name="category" value={form.category} onChange={handleChange} placeholder="Danh mục" />
-      <input name="price" type="number" value={form.price} onChange={handleChange} placeholder="Giá" required />
-      <textarea name="description" value={form.description} onChange={handleChange} placeholder="Mô tả" rows="3" />
-      <button type="submit">Lưu sản phẩm</button>
+      <h3>{editingProduct ? ' Sửa sản phẩm' : ' Thêm sản phẩm'}</h3>
+
+      <div className="form-grid">
+        <div><label>Tên sản phẩm</label><input name="name" value={form.name} onChange={handleChange} required /></div>
+        <div><label>Thương hiệu</label><input name="brand" value={form.brand} onChange={handleChange} /></div>
+        <div><label>Danh mục</label><input name="category" value={form.category} onChange={handleChange} /></div>
+        <div className="full-width"><label>Mô tả sản phẩm</label><textarea name="description" value={form.description} onChange={handleChange} /></div>
+      </div>
+
+      {form.variants.map((variant, idx) => (
+        <div key={idx} className="variant-block">
+          <h4> Biến thể {idx + 1}</h4>
+          <div className="form-grid">
+            <div><label>Màu</label><input name="color" value={variant.color} onChange={(e) => handleVariantChange(idx, e)} /></div>
+            <div><label>RAM</label><input name="ram" value={variant.ram} onChange={(e) => handleVariantChange(idx, e)} /></div>
+            <div><label>Bộ nhớ</label><input name="storage" value={variant.storage} onChange={(e) => handleVariantChange(idx, e)} /></div>
+            <div><label>Giá</label><input type="number" name="price" value={variant.price} onChange={(e) => handleVariantChange(idx, e)} /></div>
+            <div><label>Tồn kho</label><input type="number" name="stock" value={variant.stock} onChange={(e) => handleVariantChange(idx, e)} /></div>
+            <div className="full-width"><label>Ảnh minh hoạ</label><input name="image" value={variant.image} onChange={(e) => handleVariantChange(idx, e)} /></div>
+          </div>
+          {form.variants.length > 1 && (
+            <button type="button" onClick={() => removeVariant(idx)} className="btn-variant-remove">❌ Xoá biến thể</button>
+          )}
+        </div>
+      ))}
+
+      <button type="button" onClick={addVariant} className="btn-add-variant">➕ Thêm biến thể</button>
+      <button type="submit" className="btn-submit">{editingProduct ? '💾 Lưu chỉnh sửa' : ' Thêm sản phẩm'}</button>
     </form>
   );
 }

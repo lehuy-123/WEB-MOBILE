@@ -10,6 +10,8 @@ const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes'); // ✅ Thêm dòng này
+
 
 
 // Load biến môi trường
@@ -38,6 +40,8 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment-methods', paymentRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/auth', authRoutes); // ✅ Gắn thêm dòng này
+
 
 // Route test mặc định
 app.get('/', (req, res) => {
