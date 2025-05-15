@@ -1,0 +1,78 @@
+/* styles/AdminProducts.css */
+
+.admin-products {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.admin-products h2 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1f2937;
+}
+
+.product-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.product-form input,
+.product-form textarea {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  width: 100%;
+}
+
+.product-form textarea {
+  grid-column: span 2;
+  resize: vertical;
+}
+
+.product-form button {
+  grid-column: span 2;
+  padding: 12px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.product-form button:hover {
+  background-color: #1e40af;
+}
+
+.product-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-table th,
+.product-table td {
+  padding: 12px 10px;
+  border: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.product-table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+.product-table img {
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}

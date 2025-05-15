@@ -1,0 +1,23 @@
+.brand-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.brand-filter button {
+  background-color: transparent;
+  border: 1px solid #3470e4;
+  color: #3470e4;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.brand-filter button:hover {
+  background-color: #3470e4;
+  color: #fff;
+}

@@ -2,55 +2,54 @@ import { useEffect, useState } from 'react';
 import { fetchProducts } from '../api/productAPI';
 import '../styles/ProductListPage.css';
 
-
 function ProductListPage() {
   const [products, setProducts] = useState([]);
   const [keyword, setKeyword] = useState('');
-  const [sort, setSort] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const loadProducts = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchProducts({ keyword, sort });
-      setProducts(data);
-    } catch (err) {
-      console.error('Lỗi khi tải sản phẩm:', err);
-    }
-    setLoading(false);
-  };
+  const [filtered, setFiltered] = useState([]);
 
   useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await fetchProducts();
+        setProducts(data);
+        setFiltered(data);
+      } catch (err) {
+        console.error('Lỗi khi tải sản phẩm:', err);
+      }
+    };
     loadProducts();
-  }, [keyword, sort]);
+  }, []);
+
+  const handleSearch = () => {
+    const results = products.filter(p =>
+      p.name.toLowerCase().includes(keyword.toLowerCase())
+    );
+    setFiltered(results);
+  };
 
   return (
     <div className="product-list-container">
-      <div className="filters">
+      <h2 className="page-title">🛍️ Danh sách sản phẩm</h2>
+
+      <div className="filter-bar">
         <input
           type="text"
-          placeholder="Tìm kiếm sản phẩm..."
+          placeholder="Nhập từ khóa tìm kiếm..."
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
-        <select onChange={(e) => setSort(e.target.value)}>
-          <option value="">Sắp xếp</option>
-          <option value="price">Giá tăng dần</option>
-          <option value="-price">Giá giảm dần</option>
-          <option value="rating">Đánh giá cao</option>
-          <option value="newest">Mới nhất</option>
-        </select>
+        <button onClick={handleSearch}>Tìm kiếm</button>
       </div>
 
-      {loading ? (
-        <p>Đang tải sản phẩm...</p>
+      {filtered.length === 0 ? (
+        <p className="no-results">Không tìm thấy sản phẩm nào.</p>
       ) : (
         <div className="product-grid">
-          {products.map((p) => (
-            <div key={p._id} className="product-card">
+          {filtered.map(p => (
+            <div key={p._id || p.id} className="product-card">
               <img src={p.image} alt={p.name} />
               <h4>{p.name}</h4>
-              <p>{p.price.toLocaleString()} VND</p>
+              <p>{Number(p.price).toLocaleString()} VND</p>
               <button>Thêm vào giỏ</button>
             </div>
           ))}

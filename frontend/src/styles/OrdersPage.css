@@ -1,79 +1,70 @@
-.orders-page {
-  max-width: 1100px;
+/* styles/OrdersPage.css */
+
+.orders-container {
+  max-width: 1000px;
   margin: 40px auto;
+  padding: 20px;
   background: #fff;
-  padding: 24px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.05);
-  font-family: Arial, sans-serif;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
 }
 
-.orders-page h2 {
-  color: #2d6cdf;
-  margin-bottom: 20px;
-}
-
-.orders-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.orders-table th,
-.orders-table td {
-  padding: 12px 10px;
-  border-bottom: 1px solid #ddd;
-  vertical-align: top;
-  text-align: left;
-}
-
-.orders-table th {
-  background-color: #f2f6fd;
-  font-weight: bold;
-  color: #333;
-}
-
-.status {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 500;
-  display: inline-block;
+.orders-container h2 {
   text-align: center;
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #222;
 }
 
-.status.đang-xử-lý {
-  background-color: #fff2cc;
-  color: #b58900;
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.status.đã-giao {
-  background-color: #d1fadf;
-  color: #20883c;
+.order-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 16px 20px;
+  background-color: #fafafa;
 }
 
-.cancel-btn, .view-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 13px;
+.order-card h4 {
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #1976d2;
 }
 
-.cancel-btn {
-  background-color: #ff4d4f;
-  color: white;
+.order-card p {
+  font-size: 15px;
+  margin: 4px 0;
+  color: #444;
 }
 
-.cancel-btn:hover {
-  background-color: #d9363e;
+.order-card ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-top: 12px;
+  color: #555;
 }
 
-.view-btn {
-  background-color: #2d6cdf;
-  color: white;
+.order-card li {
+  font-size: 14px;
+  margin-bottom: 4px;
 }
 
-.view-btn:hover {
-  background-color: #1a4fbf;
+@media (max-width: 768px) {
+  .orders-container {
+    padding: 16px;
+  }
+
+  .order-card h4 {
+    font-size: 16px;
+  }
+
+  .order-card p,
+  .order-card li {
+    font-size: 13px;
+  }
 }

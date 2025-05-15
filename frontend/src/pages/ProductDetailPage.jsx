@@ -1,51 +1,44 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchProductDetail, fetchProductReviews } from '../api/productAPI';
+import { fetchProductById } from '../api/productAPI';
+import { Helmet } from 'react-helmet';
 import '../styles/ProductDetailPage.css';
 
 function ProductDetailPage() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
-  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    fetchProductDetail(id).then(setProduct);
-    fetchProductReviews(id).then(setReviews);
+    fetchProductById(id).then(setProduct);
   }, [id]);
 
-  if (!product) return <p>Đang tải sản phẩm...</p>;
+  if (!product) return <p className="loading">Đang tải chi tiết sản phẩm...</p>;
 
   return (
-    <div className="detail-container">
-      <div className="detail-header">
-        <img src={product.image} alt={product.name} />
-        <div className="info">
-          <h2>{product.name}</h2>
-          <p className="price">{product.price.toLocaleString()} VND</p>
-          <p>{product.description}</p>
-          <button>Thêm vào giỏ hàng</button>
-        </div>
-      </div>
+    <main className="product-detail-container">
+      <Helmet>
+        <title>{product.name} | MiniTech</title>
+        <meta name="description" content={product.description || 'Sản phẩm công nghệ chất lượng'} />
+        <meta property="og:image" content={product.image} />
+        <meta property="og:title" content={product.name} />
+      </Helmet>
 
-      <div className="specs">
-        <h3>Thông số kỹ thuật</h3>
-        <ul>
-          {product.specs?.map((s, idx) => (
-            <li key={idx}><b>{s.key}:</b> {s.value}</li>
-          ))}
-        </ul>
-      </div>
+      <article className="product-detail-card">
+        <figure className="product-image-wrapper">
+          <img src={product.image} alt={product.name} className="product-image" />
+        </figure>
 
-      <div className="reviews">
-        <h3>Đánh giá sản phẩm ({reviews.length})</h3>
-        {reviews.map((r, idx) => (
-          <div key={idx} className="review">
-            <p><strong>{r.user}</strong>: {r.comment}</p>
-            <span>⭐ {r.rating}/5</span>
-          </div>
-        ))}
-      </div>
-    </div>
+        <section className="product-info">
+          <h1>{product.name}</h1>
+          <p className="product-price">Giá: <strong style={{ color: 'red' }}>{product.price.toLocaleString()} VND</strong></p>
+          <p><strong>Thương hiệu:</strong> {product.brand}</p>
+          <p><strong>RAM:</strong> {product.ram || 'Đang cập nhật'}</p>
+          <p><strong>Bộ nhớ:</strong> {product.storage || 'Đang cập nhật'}</p>
+          <p className="product-description">{product.description}</p>
+          <button className="add-to-cart">🛒 Thêm vào giỏ hàng</button>
+        </section>
+      </article>
+    </main>
   );
 }
 

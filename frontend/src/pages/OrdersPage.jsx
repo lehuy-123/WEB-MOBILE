@@ -1,71 +1,40 @@
+// src/pages/OrdersPage.jsx
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import '../styles/OrdersPage.css';
 
 function OrdersPage() {
-  const orders = [
-    {
-      id: '71',
-      date: '19/12/2024',
-      total: 57989000,
-      status: 'Đang xử lý',
-      items: [
-        { name: 'iPhone 15 128GB', qty: 2, price: 22990000 },
-        { name: 'iPhone 15 Pro Max 256GB', qty: 1, price: 34999000 },
-      ]
-    },
-    {
-      id: '72',
-      date: '15/12/2024',
-      total: 22990000,
-      status: 'Đã giao',
-      items: [
-        { name: 'Samsung S24 256GB', qty: 1, price: 22990000 }
-      ]
-    }
-  ];
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    axios.get('http://localhost:5001/api/orders')
+      .then(res => setOrders(res.data))
+      .catch(err => console.error('Lỗi khi lấy danh sách đơn hàng:', err));
+  }, []);
 
   return (
-    <div className="orders-page">
+    <div className="orders-container">
       <h2>Lịch sử đơn hàng</h2>
-      <table className="orders-table">
-        <thead>
-          <tr>
-            <th>Mã ĐH</th>
-            <th>Ngày đặt</th>
-            <th>Sản phẩm</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
+      {orders.length === 0 ? (
+        <p>Chưa có đơn hàng nào.</p>
+      ) : (
+        <div className="order-list">
           {orders.map(order => (
-            <tr key={order.id}>
-              <td>{order.id}</td>
-              <td>{order.date}</td>
-              <td>
-                {order.items.map((item, i) => (
-                  <div key={i}>
-                    {item.qty} x {item.name}
-                  </div>
+            <div className="order-card" key={order.id}>
+              <h4>Ngày: {new Date(order.createdAt).toLocaleDateString()}</h4>
+              <p><strong>Họ tên:</strong> {order.name}</p>
+              <p><strong>Phone:</strong> {order.phone}</p>
+              <p><strong>Địa chỉ:</strong> {order.address}</p>
+              <p><strong>Tổng tiền:</strong> {order.total.toLocaleString()} VND</p>
+              <ul>
+                {order.items.map((item, idx) => (
+                  <li key={idx}>{item.name} x{item.quantity}</li>
                 ))}
-              </td>
-              <td>{order.total.toLocaleString()} VND</td>
-              <td>
-                <span className={`status ${order.status.replace(/\s/g, '-').toLowerCase()}`}>
-                  {order.status}
-                </span>
-              </td>
-              <td>
-                {order.status === 'Đang xử lý' ? (
-                  <button className="cancel-btn">Hủy đơn</button>
-                ) : (
-                  <button className="view-btn">Xem</button>
-                )}
-              </td>
-            </tr>
+              </ul>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      )}
     </div>
   );
 }

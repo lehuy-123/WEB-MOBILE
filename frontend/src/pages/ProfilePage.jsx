@@ -1,87 +1,47 @@
+// src/pages/ProfilePage.jsx
 import { useEffect, useState } from 'react';
-import { getProfile, updateProfile } from '../api/userAPI';
-import { getMyOrders, cancelOrder } from '../api/oderAPI';
+import axios from 'axios';
 import '../styles/ProfilePage.css';
 
 function ProfilePage() {
-  const [user, setUser] = useState({});
-  const [orders, setOrders] = useState([]);
-  const [form, setForm] = useState({});
-  const [message, setMessage] = useState('');
-
-  const loadUser = async () => {
-    const data = await getProfile();
-    setUser(data);
-    setForm({ name: data.name, email: data.email });
-  };
-
-  const loadOrders = async () => {
-    const data = await getMyOrders();
-    setOrders(data);
-  };
+  const [user, setUser] = useState({ name: '', email: '', avatar: '' });
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
-    loadUser();
-    loadOrders();
+    axios.get('http://localhost:5001/api/user/profile')
+      .then(res => setUser(res.data))
+      .catch(err => console.error('Lỗi khi tải profile:', err));
   }, []);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setUser({ ...user, [e.target.name]: e.target.value });
   };
 
-  const handleUpdate = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      await updateProfile(form);
-      setMessage('✅ Cập nhật thành công!');
-    } catch {
-      setMessage('❌ Có lỗi khi cập nhật.');
-    }
-  };
-
-  const handleCancel = async (orderId) => {
-    await cancelOrder(orderId);
-    loadOrders();
+    console.log('Cập nhật:', user);
+    setEditing(false);
+    alert('Cập nhật thành công!');
   };
 
   return (
     <div className="profile-container">
-      <h2>Thông tin cá nhân</h2>
-      <form onSubmit={handleUpdate} className="profile-form">
-        <input name="name" value={form.name || ''} onChange={handleChange} placeholder="Tên" />
-        <input name="email" value={form.email || ''} onChange={handleChange} placeholder="Email" />
-        <input name="password" type="password" onChange={handleChange} placeholder="Mật khẩu mới (nếu cần)" />
-        <button type="submit">Cập nhật</button>
-      </form>
-      {message && <p className="profile-message">{message}</p>}
+      <h2>Hồ sơ cá nhân</h2>
+      <img src={user.avatar || 'https://i.pravatar.cc/100'} alt="avatar" className="avatar" />
 
-      <h3>Lịch sử đơn hàng</h3>
-      <table className="orders-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Ngày</th>
-            <th>Tổng</th>
-            <th>Trạng thái</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((o) => (
-            <tr key={o._id}>
-              <td>{o._id.slice(-6)}</td>
-              <td>{new Date(o.createdAt).toLocaleDateString()}</td>
-              <td>{o.totalPrice.toLocaleString()} VND</td>
-              <td>{o.status}</td>
-              <td>
-                {o.status === 'Chờ xác nhận' && (
-                  <button onClick={() => handleCancel(o._id)}>Huỷ</button>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {editing ? (
+        <form className="profile-form" onSubmit={handleSubmit}>
+          <input name="name" value={user.name} onChange={handleChange} />
+          <input name="email" value={user.email} onChange={handleChange} />
+          <button type="submit">Lưu thay đổi</button>
+        </form>
+      ) : (
+        <div className="profile-info">
+          <p><strong>Tên:</strong> {user.name}</p>
+          <p><strong>Email:</strong> {user.email}</p>
+          <button onClick={() => setEditing(true)}>Chỉnh sửa</button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,10 @@
+.promo-banner {
+  display: flex;
+  justify-content: space-between;
+  margin: 30px 0;
+}
+
+.promo-banner img {
+  height: 100px;
+  border-radius: 8px;
+}

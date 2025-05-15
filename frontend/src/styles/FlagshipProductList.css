@@ -1,0 +1,16 @@
+/* Flagship sản phẩm */
+.flagship-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.flagship-grid .product-card {
+  width: 180px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}

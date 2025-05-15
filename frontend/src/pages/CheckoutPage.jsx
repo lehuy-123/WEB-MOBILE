@@ -1,6 +1,5 @@
+// src/pages/CheckoutPage.jsx
 import { useState } from 'react';
-import { createOrder } from '../api/oderAPI';
-
 import '../styles/CheckoutPage.css';
 
 function CheckoutPage() {
@@ -8,50 +7,40 @@ function CheckoutPage() {
     name: '',
     phone: '',
     address: '',
-    paymentMethod: 'cod',
+    payment: 'COD'
   });
-
-  const [message, setMessage] = useState('');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      await createOrder(form);
-      setMessage('🎉 Đặt hàng thành công!');
-      setForm({
-        name: '',
-        phone: '',
-        address: '',
-        paymentMethod: 'cod',
-      });
-    } catch (err) {
-      console.error(err);
-      setMessage('❌ Có lỗi xảy ra khi đặt hàng.');
-    }
+    console.log('Đơn hàng đã xác nhận:', form);
+    alert('✅ Đặt hàng thành công!');
   };
 
   return (
     <div className="checkout-container">
-      <h2>Thông tin thanh toán</h2>
-      <form className="checkout-form" onSubmit={handleSubmit}>
-        <input type="text" name="name" placeholder="Họ tên người nhận" value={form.name} onChange={handleChange} required />
-        <input type="text" name="phone" placeholder="Số điện thoại" value={form.phone} onChange={handleChange} required />
-        <input type="text" name="address" placeholder="Địa chỉ giao hàng" value={form.address} onChange={handleChange} required />
+      <h2>Thông tin đặt hàng</h2>
+      <form onSubmit={handleSubmit} className="checkout-form">
+        <label>Họ và tên</label>
+        <input type="text" name="name" required value={form.name} onChange={handleChange} />
 
-        <label>Phương thức thanh toán:</label>
-        <select name="paymentMethod" value={form.paymentMethod} onChange={handleChange}>
-          <option value="cod">Thanh toán khi nhận hàng (COD)</option>
-          <option value="bank">Chuyển khoản ngân hàng</option>
+        <label>Số điện thoại</label>
+        <input type="tel" name="phone" required value={form.phone} onChange={handleChange} />
+
+        <label>Địa chỉ giao hàng</label>
+        <textarea name="address" required value={form.address} onChange={handleChange}></textarea>
+
+        <label>Phương thức thanh toán</label>
+        <select name="payment" value={form.payment} onChange={handleChange}>
+          <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+          <option value="BANK">Chuyển khoản ngân hàng</option>
         </select>
 
         <button type="submit">Xác nhận đặt hàng</button>
       </form>
-
-      {message && <p className="checkout-message">{message}</p>}
     </div>
   );
 }

@@ -1,9 +1,20 @@
+/* styles/CheckoutPage.css */
+
 .checkout-container {
-  padding: 40px 60px;
-  max-width: 600px;
-  margin: 0 auto;
-  background-color: #f7f9fc;
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #ffffff;
   border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.checkout-container h2 {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #222;
 }
 
 .checkout-form {
@@ -12,36 +23,50 @@
   gap: 16px;
 }
 
-.checkout-form input,
-.checkout-form select {
-  padding: 10px 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 15px;
+.checkout-form label {
+  font-weight: 600;
+  color: #444;
 }
 
-.checkout-form label {
-  font-weight: bold;
-  margin-top: 10px;
+.checkout-form input,
+.checkout-form textarea,
+.checkout-form select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  width: 100%;
+  resize: none;
+}
+
+.checkout-form textarea {
+  height: 100px;
 }
 
 .checkout-form button {
-  margin-top: 10px;
-  padding: 12px;
-  background-color: #1d66d1;
+  background-color: #1976d2;
   color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  padding: 12px;
   font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .checkout-form button:hover {
-  background-color: #144ca3;
+  background-color: #0d47a1;
 }
 
-.checkout-message {
-  margin-top: 20px;
-  font-weight: bold;
-  color: green;
+@media (max-width: 768px) {
+  .checkout-container {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .checkout-form input,
+  .checkout-form textarea,
+  .checkout-form select {
+    font-size: 15px;
+  }
 }

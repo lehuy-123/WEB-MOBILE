@@ -1,120 +1,88 @@
+// controllers/productController.js
 const Product = require('../models/Product');
 
-// @GET /api/products
-// @desc Lấy danh sách sản phẩm
-// @access Public
-const getProducts = async (req, res) => {
-  const keyword = req.query.keyword
-    ? { name: { $regex: req.query.keyword, $options: 'i' } }
-    : {};
-
-  const products = await Product.find({ ...keyword });
-  res.json(products);
-};
-
-// @GET /api/products/:id
-// @desc Xem chi tiết 1 sản phẩm
-// @access Public
-const getProductById = async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (product) res.json(product);
-  else res.status(404).json({ message: 'Sản phẩm không tồn tại' });
-};
-
-// @POST /api/products
-// @desc Tạo sản phẩm mới (Admin)
-// @access Private/Admin
-const createProduct = async (req, res) => {
-  const { name, image, brand, category, description, price, countInStock } = req.body;
-
-  const product = new Product({
-    name,
-    image,
-    brand,
-    category,
-    description,
-    price,
-    countInStock,
-    createdBy: req.user._id
-  });
-
-  const createdProduct = await product.save();
-  res.status(201).json(createdProduct);
-};
-
-// @PUT /api/products/:id
-// @desc Cập nhật sản phẩm (Admin)
-// @access Private/Admin
-const updateProduct = async (req, res) => {
-  const { name, image, brand, category, description, price, countInStock } = req.body;
-  const product = await Product.findById(req.params.id);
-
-  if (product) {
-    product.name = name;
-    product.image = image;
-    product.brand = brand;
-    product.category = category;
-    product.description = description;
-    product.price = price;
-    product.countInStock = countInStock;
-
-    const updatedProduct = await product.save();
-    res.json(updatedProduct);
-  } else {
-    res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+// Lấy toàn bộ sản phẩm
+exports.getAllProducts = async (req, res) => {
+  try {
+    const products = await Product.find({});
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm', error: err.message });
   }
 };
 
-// @DELETE /api/products/:id
-// @desc Xóa sản phẩm (Admin)
-// @access Private/Admin
-const deleteProduct = async (req, res) => {
-  const product = await Product.findById(req.params.id);
-  if (product) {
-    await product.remove();
-    res.json({ message: 'Đã xóa sản phẩm' });
-  } else {
-    res.status(404).json({ message: 'Sản phẩm không tồn tại' });
+// Tìm kiếm sản phẩm theo tên
+exports.searchProducts = async (req, res) => {
+  try {
+    const keyword = req.query.q || '';
+    const results = await Product.find({
+      name: { $regex: keyword, $options: 'i' }
+    });
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi tìm kiếm sản phẩm', error: err.message });
   }
 };
 
-// @POST /api/products/:id/reviews
-// @desc Gửi đánh giá sản phẩm
-// @access Private/User
-const createReview = async (req, res) => {
-  const { rating, comment } = req.body;
-  const product = await Product.findById(req.params.id);
+// Lấy sản phẩm nổi bật (top 2 mới nhất)
+exports.getFeaturedProducts = async (req, res) => {
+  try {
+    const featured = await Product.find({}).sort({ createdAt: -1 }).limit(2);
+    res.json(featured);
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi khi lấy sản phẩm nổi bật', error: err.message });
+  }
+};
 
-  if (product) {
-    const alreadyReviewed = product.reviews.find(r => r.user.toString() === req.user._id.toString());
-    if (alreadyReviewed) {
-      return res.status(400).json({ message: 'Bạn đã đánh giá sản phẩm này rồi' });
+// Lấy sản phẩm bán chạy
+exports.getBestSellers = async (req, res) => {
+  try {
+    const bestSellers = await Product.find({}).sort({ sold: -1 }).limit(8);
+    res.json(bestSellers);
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi khi lấy sản phẩm bán chạy', error: err.message });
+  }
+};
+
+// Sắp xếp sản phẩm
+exports.sortProducts = async (req, res) => {
+  try {
+    const sortBy = req.query.by || 'price';
+    let sortQuery = {};
+
+    if (sortBy === 'price') sortQuery = { price: 1 };
+    else if (sortBy === 'rating') sortQuery = { rating: -1 };
+    else if (sortBy === 'newest') sortQuery = { createdAt: -1 };
+    else return res.status(400).json({ message: 'Tham số sort không hợp lệ' });
+
+    const sorted = await Product.find({}).sort(sortQuery);
+    res.json(sorted);
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi khi sắp xếp sản phẩm', error: err.message });
+  }
+};
+
+// Tạo sản phẩm mới
+exports.createProduct = async (req, res) => {
+  try {
+    const newProduct = new Product(req.body);
+    const saved = await newProduct.save();
+    res.status(201).json(saved);
+  } catch (err) {
+    res.status(400).json({ message: 'Lỗi khi tạo sản phẩm', error: err.message });
+  }
+};
+
+
+exports.getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
     }
-
-    const review = {
-      name: req.user.name,
-      rating: Number(rating),
-      comment,
-      user: req.user._id
-    };
-
-    product.reviews.push(review);
-    product.numReviews = product.reviews.length;
-    product.rating =
-      product.reviews.reduce((acc, item) => acc + item.rating, 0) / product.reviews.length;
-
-    await product.save();
-    res.status(201).json({ message: 'Đã gửi đánh giá' });
-  } else {
-    res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+    res.json(product);
+  } catch (error) {
+    console.error('Lỗi truy vấn sản phẩm:', error);
+    res.status(500).json({ message: 'Lỗi máy chủ' });
   }
-};
-
-module.exports = {
-  getProducts,
-  getProductById,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-  createReview
 };
