@@ -1,6 +1,6 @@
 // src/pages/HomePage.jsx
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Thêm useNavigate cho tìm kiếm
+import { useNavigate } from 'react-router-dom';
 import { fetchBestSellers } from '../api/productAPI';
 import PromotionBanner from '../components/PromotionBanner';
 import FlagshipProductList from '../components/FlagshipProductList';
@@ -10,10 +10,9 @@ import ProductCard from '../components/ProductCard';
 
 function HomePage() {
   const [hotProducts, setHotProducts] = useState([]);
-  const [loading, setLoading] = useState(true); // Thêm trạng thái tải
-  const [error, setError] = useState(null); // Thêm trạng thái lỗi
-  const [searchQuery, setSearchQuery] = useState(''); // Thêm state cho tìm kiếm
-  const navigate = useNavigate(); // Dùng để điều hướng khi tìm kiếm
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
@@ -29,15 +28,8 @@ function HomePage() {
       });
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`); // Điều hướng đến trang tìm kiếm
-    }
-  };
-
   const renderProductGrid = (products) => (
-    <div className="product-grid">
+    <div className="hot-sale-grid">
       {products.length > 0 ? (
         products.map((p) => <ProductCard key={p._id} product={p} />)
       ) : (
@@ -48,48 +40,70 @@ function HomePage() {
 
   return (
     <div className="home-container">
-      {/* Hero section */}
-      <section className="hero">
-        <div className="hero-left">
-          <h4 className="hero-subtitle">Sản phẩm hiện đại</h4>
-          <h1 className="hero-title">Moden & Convenient<br />Products</h1>
-          <form className="search-box" onSubmit={handleSearch}>
-            <input
-              type="text"
-              placeholder="Tìm sản phẩm..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button type="submit">Tìm kiếm</button>
-          </form>
-        </div>
-
-        <div className="hero-right">
-          <img src="./images/banner.png" alt="Banner" />
-        </div>
+      {/* Banner lớn thay thế hero */}
+      <section className="hero-banner-full">
+        <img
+          src="./images/banner1.png"
+          alt="Banner chính"
+          className="full-banner-image"
+        />
       </section>
 
-      {/* Sản phẩm bán chạy */}
-      <section className="featured-products">
-        <h2>🔥 Sản phẩm bán chạy</h2>
+      {/* HOT SALE giống CellphoneS */}
+      <section className="hot-sale-banner">
+        <div className="hot-sale-header">
+          <h2>🔥 SẢN PHẨM BÁN CHẠY NHẤT</h2>
+         
+        </div>
         {loading ? (
-          <p>Đang tải...</p>
+          <p style={{ padding: '1rem' }}>Đang tải...</p>
         ) : error ? (
-          <p>{error}</p>
+          <p style={{ padding: '1rem' }}>{error}</p>
         ) : (
           renderProductGrid(hotProducts)
         )}
       </section>
 
-      {/* Sản phẩm flagship */}
+      {/* Sản phẩm nổi bật */}
       <section className="flagship-products">
         <FlagshipProductList />
       </section>
 
       {/* Banner khuyến mãi nhỏ */}
       <PromotionBanner />
+    <section className="about-section">
+  <div className="about-card centered-box">
+    <h3>📍 MiniTech – Uy tín & Chính hãng</h3>
+    <p>
+      MiniTech chuyên cung cấp <strong>điện thoại</strong>, <strong>máy tính bảng</strong> và <strong>phụ kiện công nghệ</strong> chính hãng từ các thương hiệu hàng đầu như Apple, Samsung, Xiaomi, Oppo,...
+    </p>
+    <p className="highlight-line">
+      ⭐ Cam kết <span>giá tốt</span>, <span>bảo hành 12 tháng</span>, <span>trả góp 0%</span>, <span>giao hàng nhanh toàn quốc</span>.
+    </p>
+    <div className="about-stats">
+      <div>
+        <h4>5000+</h4>
+        <p>Khách hàng tin dùng</p>
+      </div>
+      <div>
+        <h4>98%</h4>
+        <p>Đánh giá 5 sao</p>
+      </div>
+      <div>
+        <h4>24/7</h4>
+        <p>Hỗ trợ kỹ thuật</p>
+      </div>
+    </div>
+    <p className="about-note">
+      📦 Đặt hàng online – Nhận hàng tại nhà. Trải nghiệm mua sắm tiện lợi và an toàn tại MiniTech!
+    </p>
+  </div>
+</section>
 
-      
+
+
+
+
     </div>
   );
 }

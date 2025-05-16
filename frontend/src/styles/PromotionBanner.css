@@ -1,10 +1,21 @@
-.promo-banner {
+.promo-banner-container {
   display: flex;
-  justify-content: space-between;
-  margin: 30px 0;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 2rem auto;
+  max-width: 1200px;
+  padding: 0 1rem;
 }
 
-.promo-banner img {
-  height: 100px;
-  border-radius: 8px;
+.promo-banner-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.promo-banner-img:hover {
+  transform: scale(1.01);
 }

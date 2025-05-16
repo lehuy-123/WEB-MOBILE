@@ -1,40 +1,118 @@
+/* ===== Cơ bản ===== */
 .header {
-  background-color: #f2f6fd;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  border-bottom: 1px solid #ddd;
+  width: 100%;
+  background-color: #1e40af;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .header-top {
-  background-color: #2d6cdf;
-  color: white;
-  padding: 8px 20px;
   display: flex;
   justify-content: space-between;
-  font-size: 13px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  background-color: #1e3a8a;
+}
+
+.header-info span {
+  margin-right: 1rem;
 }
 
 .header-main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
+  padding: 1rem 1.5rem;
+  position: relative;
+  flex-wrap: wrap;
 }
 
-.logo {
-  font-size: 22px;
+.logo a {
+  font-size: 1.5rem;
   font-weight: bold;
-  color: #2d6cdf;
+  color: white;
+  text-decoration: none;
+}
+
+.logo span {
+  color: #38bdf8;
+}
+
+/* ===== Menu toggle ===== */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: white;
+  cursor: pointer;
+  margin-left: auto; /* 👈 thêm dòng này để đẩy icon sang phải */
+}
+
+/* ===== Nav mặc định ===== */
+.main-nav {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
 }
 
 .main-nav a {
-  margin-left: 20px;
-  color: #2d6cdf;
+  color: white;
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.3s;
 }
 
 .main-nav a:hover {
-  text-decoration: underline;
+  color: #facc15;
 }
 
+.logout-btn {
+  background-color: #ef4444;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.logout-btn:hover {
+  background-color: #dc2626;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .main-nav {
+    flex-direction: column;
+    width: 100%;
+    background-color: #1e3a8a;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    padding: 1rem 0;
+    display: none;
+    z-index: 100;
+    border-top: 1px solid #3b82f6;
+  }
+
+  .main-nav.show {
+    display: flex;
+  }
+
+  .main-nav a,
+  .main-nav .logout-btn {
+    padding: 0.5rem 1rem;
+    width: 100%;
+    text-align: left;
+  }
+
+  .header-main {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
