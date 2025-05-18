@@ -10,6 +10,13 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+
+// Hàm chuẩn hóa boolean cho trường flagship
+function parseFlagship(raw) {
+  return raw === true || raw === 'true' || raw === 1 || raw === '1' || raw === 'on' || raw === 'checked';
+}
+
+
 // Tìm kiếm sản phẩm theo tên
 exports.searchProducts = async (req, res) => {
   try {
@@ -64,11 +71,17 @@ exports.sortProducts = async (req, res) => {
 };
 
 
+// ======= PHẦN SỬA FLAGSHIP ========
+
+// Hàm chuẩn hoá boolean từ form data (FormData hoặc JSON)
+function parseFlagship(raw) {
+  return raw === true || raw === 'true' || raw === 1 || raw === '1';
+}
+// Tạo mới sản phẩm
 exports.createProduct = async (req, res) => {
   try {
-    let { name, brand, description, variants, specs, content, category, price } = req.body;
+    let { name, brand, description, variants, specs, content, category, price, flagship } = req.body;
 
-    // ✅ Chuyển đổi chuỗi sang JSON
     try {
       variants = JSON.parse(variants);
       specs = specs ? JSON.parse(specs) : [];
@@ -76,22 +89,18 @@ exports.createProduct = async (req, res) => {
       return res.status(400).json({ message: 'Trường variants hoặc specs không đúng định dạng JSON' });
     }
 
-    // Kiểm tra các field bắt buộc
     if (!name || !variants || !Array.isArray(variants) || variants.length === 0) {
       return res.status(400).json({ message: 'Tên sản phẩm và variants là bắt buộc' });
     }
 
-    // Xử lý biến thể
-    const processedVariants = variants.map((variant, index) => {
-      return {
-        color: variant.color || '',
-        ram: variant.ram || '',
-        storage: variant.storage || '',
-        price: Number(variant.price) || 0,
-        quantity: Number(variant.quantity) || 0,
-        images: Array.isArray(variant.images) ? variant.images : []
-      };
-    });
+    const processedVariants = variants.map((variant) => ({
+      color: variant.color || '',
+      ram: variant.ram || '',
+      storage: variant.storage || '',
+      price: Number(variant.price) || 0,
+      quantity: Number(variant.quantity) || 0,
+      images: Array.isArray(variant.images) ? variant.images : []
+    }));
 
     const newProduct = new Product({
       name,
@@ -103,7 +112,8 @@ exports.createProduct = async (req, res) => {
       category: category || '',
       price: Number(price) || 0,
       sold: 0,
-      image: req.file?.filename || ''
+      image: req.file?.filename || '',
+      flagship: parseFlagship(flagship) // <== Chuẩn hoá đúng boolean
     });
 
     await newProduct.save();
@@ -115,36 +125,40 @@ exports.createProduct = async (req, res) => {
 };
 
 
+
+
+
+
 // Cập nhật sản phẩm
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, brand, description, variants, specs, content, category, price } = req.body;
+    let { name, brand, description, variants, specs, content, category, price, flagship } = req.body;
 
-    // Log dữ liệu nhận được để debug
-    console.log('Dữ liệu nhận được:', req.body);
+    let variantsParsed = variants;
+    if (typeof variants === 'string') {
+      try {
+        variantsParsed = JSON.parse(variants);
+      } catch {
+        return res.status(400).json({ message: 'Trường variants không đúng định dạng JSON' });
+      }
+    }
 
-    // Kiểm tra các field bắt buộc
-    if (!name || !variants || !Array.isArray(variants) || variants.length === 0) {
+    if (!name || !variantsParsed || !Array.isArray(variantsParsed) || variantsParsed.length === 0) {
       return res.status(400).json({ message: 'Tên sản phẩm và variants là bắt buộc' });
     }
 
-    // Ánh xạ variants để đảm bảo đúng định dạng schema
-    const processedVariants = variants.map((variant, index) => {
-      console.log(`Biến thể ${index + 1}:`, variant); // Log từng biến thể để kiểm tra
-      return {
-        color: variant.color || '',
-        ram: variant.ram || '',
-        storage: variant.storage || '',
-        price: Number(variant.price) || 0,
-        quantity: Number(variant.quantity) || 0,
-        images: Array.isArray(variant.images) ? variant.images : [] // Đảm bảo images là mảng
-      };
-    });
+    const processedVariants = variantsParsed.map((variant) => ({
+      color: variant.color || '',
+      ram: variant.ram || '',
+      storage: variant.storage || '',
+      price: Number(variant.price) || 0,
+      quantity: Number(variant.quantity) || 0,
+      images: Array.isArray(variant.images) ? variant.images : []
+    }));
 
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
 
-    // Cập nhật các field
     product.name = name;
     product.brand = brand || product.brand;
     product.description = description || product.description;
@@ -153,9 +167,9 @@ exports.updateProduct = async (req, res) => {
     product.content = content || product.content;
     product.category = category || product.category;
     product.price = Number(price) || product.price;
+    product.flagship = parseFlagship(flagship);
 
     await product.save();
-    console.log('Sản phẩm đã cập nhật:', product); // Log sản phẩm sau khi cập nhật
     res.json(product);
   } catch (err) {
     console.error('Lỗi cập nhật:', err);

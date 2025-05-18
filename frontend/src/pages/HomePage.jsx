@@ -29,13 +29,10 @@ function HomePage() {
   }, []);
 
   const renderProductGrid = (products) => (
-    <div className="hot-sale-grid">
-      {products.length > 0 ? (
-        products.map((p) => <ProductCard key={p._id} product={p} />)
-      ) : (
-        <p>Không có sản phẩm nào</p>
-      )}
-    </div>
+   <div className="best-seller-list">
+  {products.map(p => <ProductCard key={p._id} product={p} />)}
+</div>
+
   );
 
   return (

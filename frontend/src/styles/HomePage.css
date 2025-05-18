@@ -421,3 +421,18 @@
     font-size: 0.95rem;
   }
 }
+.best-seller-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;        /* hoặc 24px, 32px tuỳ ý */
+  justify-content: flex-start; /* hoặc center nếu muốn căn giữa */
+  align-items: stretch;
+  margin: 24px 0;
+}
+
+/* Responsive: */
+@media (max-width: 900px) {
+  .best-seller-list {
+    gap: 16px;
+  }
+}

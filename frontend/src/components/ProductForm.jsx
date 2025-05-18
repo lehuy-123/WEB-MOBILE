@@ -10,7 +10,8 @@ function ProductForm({ onSubmit, editingProduct }) {
     category: '',
     description: '',
     variants: [{ color: '', ram: '', storage: '', price: '', stock: '', images: [] }],
-    image: null
+    image: null,
+    flagship: false
   });
 
   useEffect(() => {
@@ -21,6 +22,7 @@ function ProductForm({ onSubmit, editingProduct }) {
         category: editingProduct.category || '',
         description: editingProduct.description || '',
         image: null,
+        flagship: !!editingProduct.flagship,   // always boolean
         variants: editingProduct.variants?.length
           ? editingProduct.variants.map(variant => ({
               color: variant.color || '',
@@ -37,6 +39,10 @@ function ProductForm({ onSubmit, editingProduct }) {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleFlagshipChange = (e) => {
+    setForm({ ...form, flagship: e.target.checked });
   };
 
   const handleVariantChange = (index, e) => {
@@ -105,6 +111,10 @@ function ProductForm({ onSubmit, editingProduct }) {
     formData.append('description', form.description);
     formData.append('price', mainPrice);
     formData.append('image', form.image);
+
+    // ✅ Dòng này luôn ép thành chuỗi "true"/"false"
+    formData.append('flagship', form.flagship ? 'true' : 'false');
+
     formData.append('variants', JSON.stringify(
       form.variants.map(v => ({
         color: v.color,
@@ -126,11 +136,37 @@ function ProductForm({ onSubmit, editingProduct }) {
       <h3>{editingProduct ? '✏️ Sửa sản phẩm' : '➕ Thêm sản phẩm'}</h3>
 
       <div className="form-grid">
-        <div><label>Tên sản phẩm</label><input name="name" value={form.name} onChange={handleChange} required /></div>
-        <div><label>Thương hiệu</label><input name="brand" value={form.brand} onChange={handleChange} /></div>
-        <div><label>Danh mục</label><input name="category" value={form.category} onChange={handleChange} /></div>
-        <div className="full-width"><label>Mô tả sản phẩm</label><textarea name="description" value={form.description} onChange={handleChange} /></div>
-        <div className="full-width"><label>Ảnh sản phẩm chính</label><input type="file" accept="image/*" onChange={handleMainImageChange} /></div>
+        <div>
+          <label>Tên sản phẩm</label>
+          <input name="name" value={form.name} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Thương hiệu</label>
+          <input name="brand" value={form.brand} onChange={handleChange} />
+        </div>
+        <div>
+          <label>Danh mục</label>
+          <input name="category" value={form.category} onChange={handleChange} />
+        </div>
+        <div style={{ margin: '8px 0 0 0' }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={!!form.flagship}
+              onChange={handleFlagshipChange}
+              style={{ marginRight: 6 }}
+            />
+            Sản phẩm Flagship
+          </label>
+        </div>
+        <div className="full-width">
+          <label>Mô tả sản phẩm</label>
+          <textarea name="description" value={form.description} onChange={handleChange} />
+        </div>
+        <div className="full-width">
+          <label>Ảnh sản phẩm chính</label>
+          <input type="file" accept="image/*" onChange={handleMainImageChange} />
+        </div>
       </div>
 
       {form.variants.map((variant, idx) => (

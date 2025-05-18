@@ -1,4 +1,3 @@
-// src/components/FlagshipProductList.jsx
 import React, { useEffect, useState } from 'react';
 import ProductCard from './ProductCard';
 import '../styles/HomePage.css';
@@ -8,12 +7,19 @@ const FlagshipProductList = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:5001/api/products?category=flagship')
+    // Nếu backend đã có endpoint riêng:
+    // fetch('http://localhost:5001/api/products/flagship')
+
+    // Nếu chưa, fetch toàn bộ và filter ở FE:
+    fetch('http://localhost:5001/api/products')
       .then((res) => {
-        if (!res.ok) throw new Error('Lỗi khi tải flagship products');
+        if (!res.ok) throw new Error('Lỗi khi tải sản phẩm');
         return res.json();
       })
-      .then((data) => setFlagships(data))
+      .then((data) => {
+        // Filter chuẩn chỉ lấy flagship === true
+        setFlagships(data.filter(p => p.flagship === true));
+      })
       .catch((err) => {
         console.error(err);
         setError('Không thể tải danh sách flagship');
