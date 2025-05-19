@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Biến thể sản phẩm
 const variantSchema = new mongoose.Schema({
   color: String,
   ram: String,
@@ -13,13 +12,14 @@ const variantSchema = new mongoose.Schema({
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   brand: String,
-  category: String,
+  category: String,       // slug của danh mục cha
+  subcategory: String,    // slug của danh mục con
   description: String,
   content: String,
-  image: { type: String, default: "" }, // Ảnh đại diện
+  image: { type: String, default: "" },
   variants: [variantSchema],
   sold: { type: Number, default: 0 },
-  flagship: { type: Boolean, default: false }, // ✅ Mặc định không phải flagship
+  flagship: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
 

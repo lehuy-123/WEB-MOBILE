@@ -84,11 +84,17 @@ exports.sortProducts = async (req, res) => {
 function parseFlagship(raw) {
   return raw === true || raw === 'true' || raw === 1 || raw === '1';
 }
+
+
+
+
+
+
 // Tạo mới sản phẩm
 exports.createProduct = async (req, res) => {
   try {
-    let { name, brand, description, variants, specs, content, category, price, flagship } = req.body;
-
+    let { name, brand, description, variants, specs, content, category, subcategory, price, flagship } = req.body;
+    // Parse variants/specs như cũ
     try {
       variants = JSON.parse(variants);
       specs = specs ? JSON.parse(specs) : [];
@@ -117,10 +123,11 @@ exports.createProduct = async (req, res) => {
       specs: specs || [],
       content: content || '',
       category: category || '',
+      subcategory: subcategory || '',  // <== PHẢI BỔ SUNG DÒNG NÀY
       price: Number(price) || 0,
       sold: 0,
       image: req.file?.filename || '',
-      flagship: parseFlagship(flagship) // <== Chuẩn hoá đúng boolean
+      flagship: parseFlagship(flagship)
     });
 
     await newProduct.save();
@@ -130,6 +137,7 @@ exports.createProduct = async (req, res) => {
     res.status(500).json({ message: 'Lỗi khi tạo sản phẩm', error: err.message });
   }
 };
+
 
 
 

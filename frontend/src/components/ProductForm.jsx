@@ -3,7 +3,6 @@ import axios from 'axios';
 import '../styles/AdminProducts.css';
 
 function ProductForm({ onSubmit, editingProduct }) {
-  // Lưu toàn bộ category động từ backend
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({
     name: '',
@@ -16,13 +15,13 @@ function ProductForm({ onSubmit, editingProduct }) {
     flagship: false,
   });
 
-  // Quản lý trạng thái thêm danh mục
   const [newCategory, setNewCategory] = useState('');
   const [newSubcategory, setNewSubcategory] = useState('');
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [showAddSubcategory, setShowAddSubcategory] = useState(false);
+  const [error, setError] = useState('');
 
-  // Lấy danh mục động từ backend
+  // Fetch categories
   const fetchCategories = async () => {
     try {
       const res = await axios.get('http://localhost:5001/api/categories');
@@ -40,11 +39,21 @@ function ProductForm({ onSubmit, editingProduct }) {
   // Khi sửa sản phẩm
   useEffect(() => {
     if (editingProduct) {
+      let subSlug = editingProduct.subcategory;
+      // Nếu là _id hoặc tên, map sang slug (phòng dữ liệu cũ)
+      if (
+        subSlug &&
+        categories.length > 0 &&
+        !categories.some(c => c.slug === subSlug)
+      ) {
+        const sub = categories.find(c => c._id === subSlug || c.name === subSlug);
+        if (sub) subSlug = sub.slug;
+      }
       setForm({
         name: editingProduct.name || '',
         brand: editingProduct.brand || '',
         category: editingProduct.category || '',
-        subcategory: editingProduct.subcategory || '',
+        subcategory: subSlug || '',
         description: editingProduct.description || '',
         image: null,
         flagship: !!editingProduct.flagship,
@@ -60,9 +69,10 @@ function ProductForm({ onSubmit, editingProduct }) {
           : [{ color: '', ram: '', storage: '', price: '', stock: '', images: [] }]
       });
     }
-  }, [editingProduct]);
+    // eslint-disable-next-line
+  }, [editingProduct, categories]);
 
-  // ==== Thêm danh mục CHA vào backend ====
+  // Thêm danh mục cha
   const handleAddCategory = async () => {
     if (!newCategory.trim()) return;
     try {
@@ -75,11 +85,10 @@ function ProductForm({ onSubmit, editingProduct }) {
     }
   };
 
-  // ==== Thêm danh mục CON vào backend ====
+  // Thêm danh mục con
   const handleAddSubcategory = async () => {
     if (!newSubcategory.trim() || !form.category) return;
     try {
-      // Tìm _id của danh mục cha (theo slug)
       const parent = categories.find(cat => cat.slug === form.category && !cat.parentId);
       if (!parent) {
         alert('Không tìm thấy danh mục cha!');
@@ -97,17 +106,21 @@ function ProductForm({ onSubmit, editingProduct }) {
     }
   };
 
-  // ==== Xử lý chọn danh mục cha/con ====
+  // Chọn danh mục cha
   const handleCategoryChange = (e) => {
     setForm({ ...form, category: e.target.value, subcategory: '' });
     setShowAddSubcategory(false);
     setNewSubcategory('');
+    setError('');
   };
-  const handleSubcategoryChange = (e) => setForm({ ...form, subcategory: e.target.value });
+  const handleSubcategoryChange = (e) => {
+    setForm({ ...form, subcategory: e.target.value });
+    setError('');
+  };
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   const handleFlagshipChange = (e) => setForm({ ...form, flagship: e.target.checked });
 
-  // ==== Biến thể, ảnh, nộp form như cũ ====
+  // Biến thể, ảnh
   const handleVariantChange = (index, e) => {
     const updated = [...form.variants];
     updated[index][e.target.name] = e.target.value;
@@ -150,14 +163,25 @@ function ProductForm({ onSubmit, editingProduct }) {
     const updated = form.variants.filter((_, i) => i !== index);
     setForm({ ...form, variants: updated });
   };
+
+  // Xử lý submit, đảm bảo chọn đủ cả cha và con
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!form.category) {
+      setError('Vui lòng chọn danh mục cha!');
+      return;
+    }
+    if (!form.subcategory) {
+      setError('Vui lòng chọn danh mục con!');
+      return;
+    }
+    setError('');
     const mainPrice = Number(form.variants[0]?.price || 0);
     const formData = new FormData();
     formData.append('name', form.name);
     formData.append('brand', form.brand);
-    formData.append('category', form.category);      // <-- Lưu slug
-    formData.append('subcategory', form.subcategory);// <-- Lưu slug
+    formData.append('category', form.category);      // SLUG
+    formData.append('subcategory', form.subcategory);// SLUG
     formData.append('description', form.description);
     formData.append('price', mainPrice);
     formData.append('image', form.image);
@@ -177,7 +201,7 @@ function ProductForm({ onSubmit, editingProduct }) {
     onSubmit && onSubmit(formData);
   };
 
-  // ==== Lấy danh mục con theo slug cha ====
+  // Lấy danh mục con đúng parent
   const selectedCategory = categories.find(cat => cat.slug === form.category && !cat.parentId);
   const subcategories = categories.filter(
     cat => String(cat.parentId) === String(selectedCategory?._id)
@@ -186,6 +210,7 @@ function ProductForm({ onSubmit, editingProduct }) {
   return (
     <form onSubmit={handleSubmit} className="product-form">
       <h3>{editingProduct ? '✏️ Sửa sản phẩm' : '➕ Thêm sản phẩm'}</h3>
+      {error && <div style={{ color: 'red', marginBottom: 10 }}>{error}</div>}
       <div className="form-grid">
         <div>
           <label>Tên sản phẩm</label>
@@ -277,7 +302,7 @@ function ProductForm({ onSubmit, editingProduct }) {
           <input type="file" accept="image/*" onChange={handleMainImageChange} />
         </div>
       </div>
-      {/* Biến thể giữ nguyên như cũ */}
+      {/* Biến thể */}
       {form.variants.map((variant, idx) => (
         <div key={idx} className="variant-block">
           <h4>🍀 Biến thể #{idx + 1}</h4>

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { fetchProducts } from '../api/productAPI';
 import '../styles/ProductListPage.css';
 
-// Hàm build cây danh mục từ mảng phẳng
+// Build cây danh mục
 function buildCategoryTree(categories) {
   const map = {};
   categories.forEach(cat => { map[cat._id] = { ...cat, children: [] }; });
@@ -20,9 +20,7 @@ function buildCategoryTree(categories) {
 
 function SidebarCategory({ tree, selected, setSelected }) {
   const [open, setOpen] = useState({});
-  const toggleOpen = (catId) => {
-    setOpen({ ...open, [catId]: !open[catId] });
-  };
+  const toggleOpen = (catId) => setOpen({ ...open, [catId]: !open[catId] });
 
   return (
     <aside className="sidebar-category">
@@ -78,7 +76,7 @@ function SidebarCategory({ tree, selected, setSelected }) {
 function ProductListPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [category, setCategory] = useState(''); // slug đang chọn
+  const [category, setCategory] = useState(''); // slug danh mục chọn
 
   useEffect(() => {
     fetchProducts().then(setProducts);
@@ -89,22 +87,19 @@ function ProductListPage() {
 
   const tree = buildCategoryTree(categories);
 
-  // Sửa filter theo chuẩn e-commerce
-  const filtered = !category
-    ? products
-    : (() => {
-        const selectedCat = categories.find(cat => cat.slug === category);
-        if (!selectedCat) return [];
-        if (!selectedCat.parentId) {
-          // Danh mục cha: chỉ lấy sản phẩm gán trực tiếp vào cha, không lấy sản phẩm sub
-          return products.filter(
-            p => p.category === category && (!p.subcategory || p.subcategory === '')
-          );
-        } else {
-          // Danh mục con: chỉ lấy sản phẩm có subcategory === slug con
-          return products.filter(p => p.subcategory === category);
-        }
-      })();
+  // Lọc sản phẩm: nếu chọn danh mục cha -> hiện tất cả sp thuộc danh mục cha này (category === slug)
+  // Nếu chọn danh mục con -> chỉ hiện sp có subcategory === slug
+  const isParentCat = categories.some(c => c.slug === category && !c.parentId);
+  let filtered = products;
+  if (category) {
+    if (isParentCat) {
+      // Hiện tất cả sp có category === slug cha
+      filtered = products.filter(p => p.category === category);
+    } else {
+      // Hiện sp có subcategory === slug con
+      filtered = products.filter(p => p.subcategory === category);
+    }
+  }
 
   return (
     <div className="main-flex-container">
