@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
 // Đăng ký tài khoản
+// Đăng ký tài khoản
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -12,13 +13,12 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Email đã được sử dụng!' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // ✅ Mã hóa mật khẩu
-
+    // KHÔNG hash password ở đây
     const user = new User({
       name,
       email,
-      password: hashedPassword,
-      role: 'user', // mặc định là user
+      password, // truyền plain-text
+      role: 'user',
     });
 
     await user.save();
@@ -29,6 +29,7 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: 'Lỗi máy chủ khi đăng ký.' });
   }
 };
+
 
 // Đăng nhập tài khoản
 exports.login = async (req, res) => {
