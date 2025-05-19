@@ -1,24 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const {
-  getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory
-} = require('../controllers/categoryController');
+const categoryController = require('../controllers/categoryController');
 
-const { protect, admin } = require('../middleware/authMiddleware');
+// Thêm, sửa, xoá, lấy danh mục
+router.post('/', categoryController.createCategory);
+router.get('/', categoryController.getAllCategories);
+router.delete('/:id', categoryController.deleteCategory);
+// Trong router
+router.put('/:id', categoryController.updateCategory);
 
-// Lấy danh sách danh mục (public)
-router.get('/', getCategories);
-
-// Tạo danh mục mới (admin)
-router.post('/', protect, admin, createCategory);
-
-// Cập nhật danh mục (admin)
-router.put('/:id', protect, admin, updateCategory);
-
-// Xóa danh mục (admin)
-router.delete('/:id', protect, admin, deleteCategory);
+// ... update (PUT) tuỳ ý
 
 module.exports = router;

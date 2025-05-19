@@ -4,17 +4,19 @@ const cors = require('cors');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+const path = require('path');
+
+// Import routes
 const productRoutes = require('./routes/productRoutes');
 const brandRoutes = require('./routes/brandRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const userRoutes = require('./routes/userRoutes');
-const authRoutes = require('./routes/authRoutes'); // ✅ Thêm dòng này
-const path = require('path');
+const authRoutes = require('./routes/authRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
-
-
+const bannerRoutes = require('./routes/bannerRoutes');
+const categoryRoutes = require('./routes/categoryRoutes'); // CHỈ GỌI 1 LẦN
 
 // Load biến môi trường
 dotenv.config();
@@ -29,25 +31,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
-app.use('/api/brands', brandRoutes);
 
-
-
-
-// ✅ Import route cần dùng trong giai đoạn hiện tại
-const bannerRoutes = require('./routes/bannerRoutes'); // Giai đoạn BE.01
-
-// ✅ Đăng ký route
-app.use('/api/banners', bannerRoutes);
+// Đăng ký routes
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/brands', brandRoutes);
+app.use('/api/banners', bannerRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment-methods', paymentRoutes);
-app.use('/api/user', userRoutes);
-app.use('/api/auth', authRoutes); // ✅ Gắn thêm dòng này
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+app.use('/api/categories', categoryRoutes); // CHỈ ĐĂNG KÝ 1 LẦN
 app.use('/api/upload', uploadRoutes);
 
+// Static uploads
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 // Route test mặc định
 app.get('/', (req, res) => {

@@ -3,7 +3,14 @@ const Product = require('../models/Product');
 // Lấy toàn bộ sản phẩm
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find({});
+    const { category, brand, type } = req.query;
+    let filter = {};
+
+    if (category) filter.category = category;
+    if (brand) filter.brand = brand;
+    if (type) filter.type = type; // Nếu bạn có field 'type' (thể loại)
+    
+    const products = await Product.find(filter);
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm', error: err.message });

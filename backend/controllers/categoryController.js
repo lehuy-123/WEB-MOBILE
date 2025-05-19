@@ -1,69 +1,55 @@
 const Category = require('../models/Category');
 
-// @GET /api/categories
-// @desc Lấy danh sách danh mục
-// @access Public
-const getCategories = async (req, res) => {
-  const categories = await Category.find({});
-  res.json(categories);
-};
+// Thêm danh mục
 
-// @POST /api/categories
-// @desc Tạo danh mục mới
-// @access Private/Admin
-const createCategory = async (req, res) => {
-  const { name, slug, description } = req.body;
-
-  const categoryExists = await Category.findOne({ slug });
-  if (categoryExists) {
-    return res.status(400).json({ message: 'Slug đã tồn tại' });
-  }
-
-  const category = await Category.create({
-    name,
-    slug,
-    description,
-    createdBy: req.user._id
-  });
-
-  res.status(201).json(category);
-};
-
-// @PUT /api/categories/:id
-// @desc Cập nhật danh mục
-// @access Private/Admin
-const updateCategory = async (req, res) => {
-  const { name, slug, description } = req.body;
-  const category = await Category.findById(req.params.id);
-
-  if (category) {
-    category.name = name;
-    category.slug = slug;
-    category.description = description;
-
-    const updated = await category.save();
-    res.json(updated);
-  } else {
-    res.status(404).json({ message: 'Không tìm thấy danh mục' });
+exports.createCategory = async (req, res) => {
+  try {
+    const { name, parentId } = req.body;
+    const slug = name.toLowerCase().replace(/\s+/g, '-');
+    const newCategory = new Category({
+      name,
+      slug,
+      parentId: parentId || null
+    });
+    await newCategory.save();
+    res.status(201).json(newCategory);
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi tạo danh mục', error: err.message });
   }
 };
 
-// @DELETE /api/categories/:id
-// @desc Xóa danh mục
-// @access Private/Admin
-const deleteCategory = async (req, res) => {
-  const category = await Category.findById(req.params.id);
-  if (category) {
-    await category.remove();
-    res.json({ message: 'Đã xóa danh mục' });
-  } else {
-    res.status(404).json({ message: 'Không tìm thấy danh mục' });
+// Lấy tất cả danh mục
+exports.getAllCategories = async (req, res) => {
+  try {
+    const categories = await Category.find({});
+    res.json(categories);
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi lấy danh mục', error: err.message });
   }
 };
 
-module.exports = {
-  getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory
+// Xoá danh mục
+exports.deleteCategory = async (req, res) => {
+  try {
+    await Category.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Đã xoá danh mục' });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi xoá danh mục', error: err.message });
+  }
 };
+
+// Sửa danh mục (tuỳ chọn)
+exports.updateCategory = async (req, res) => {
+  try {
+    const { name, slug, description } = req.body;
+    const category = await Category.findByIdAndUpdate(
+      req.params.id,
+      { name, slug, description },
+      { new: true }
+    );
+    res.json(category);
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi cập nhật danh mục', error: err.message });
+  }
+};
+
