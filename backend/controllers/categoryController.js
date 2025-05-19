@@ -1,4 +1,5 @@
 const Category = require('../models/Category');
+const Product = require('../models/Product'); // Nếu muốn kiểm tra trước khi xoá
 
 // Thêm danh mục
 
@@ -28,13 +29,26 @@ exports.getAllCategories = async (req, res) => {
   }
 };
 
-// Xoá danh mục
+// Xoá danh mục theo ID
 exports.deleteCategory = async (req, res) => {
   try {
-    await Category.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Đã xoá danh mục' });
+    const { id } = req.params;
+
+    // Nếu muốn chặn xoá khi còn sản phẩm thuộc danh mục:
+    const hasProduct = await Product.exists({ $or: [{ category: id }, { subcategory: id }] });
+    if (hasProduct) {
+      return res.status(400).json({ message: 'Không thể xoá vì vẫn còn sản phẩm thuộc danh mục này!' });
+    }
+
+    // Xoá danh mục con trước (nếu là cha)
+    await Category.deleteMany({ parentId: id });
+
+    // Xoá chính nó
+    await Category.findByIdAndDelete(id);
+
+    res.json({ message: 'Đã xoá danh mục thành công!' });
   } catch (err) {
-    res.status(500).json({ message: 'Lỗi xoá danh mục', error: err.message });
+    res.status(500).json({ message: 'Xoá danh mục thất bại', error: err.message });
   }
 };
 
