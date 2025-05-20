@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../styles/AdminProducts.css';
+import '../styles/ProductForm.css';
+
 
 function ProductForm({ onSubmit, editingProduct }) {
   const [categories, setCategories] = useState([]);
@@ -106,6 +107,33 @@ function ProductForm({ onSubmit, editingProduct }) {
     }
   };
 
+  // Xoá danh mục cha hoặc con
+  const handleDeleteCategory = async (catId, isSub = false) => {
+    const token = JSON.parse(localStorage.getItem('user'))?.token;
+    if (!token) {
+      alert('❌ Vui lòng đăng nhập để thực hiện thao tác này');
+      return;
+    }
+    const confirmDel = window.confirm(
+      isSub
+        ? 'Bạn chắc chắn muốn xoá danh mục con này? (Không thể hoàn tác!)'
+        : 'Bạn chắc chắn muốn xoá danh mục cha này? (Không thể hoàn tác!)'
+    );
+    if (!confirmDel) return;
+    try {
+      await axios.delete(`http://localhost:5001/api/categories/${catId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('✅ Xoá danh mục thành công!');
+      fetchCategories();
+      // Reset chọn nếu đang chọn danh mục vừa xoá
+      if (form.category === catId) setForm({ ...form, category: '', subcategory: '' });
+      if (form.subcategory === catId) setForm({ ...form, subcategory: '' });
+    } catch (err) {
+      alert('❌ Xoá thất bại: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
   // Chọn danh mục cha
   const handleCategoryChange = (e) => {
     setForm({ ...form, category: e.target.value, subcategory: '' });
@@ -164,7 +192,7 @@ function ProductForm({ onSubmit, editingProduct }) {
     setForm({ ...form, variants: updated });
   };
 
-  // Xử lý submit, đảm bảo chọn đủ cả cha và con
+  // Xử lý submit
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.category) {
@@ -249,6 +277,24 @@ function ProductForm({ onSubmit, editingProduct }) {
               <button type="button" onClick={() => setShowAddCategory(false)}>Huỷ</button>
             </div>
           )}
+
+          {/* Danh sách danh mục cha có thể xoá */}
+          {categories.filter(cat => !cat.parentId).length > 0 && (
+            <ul className="cat-list-admin">
+  {categories.filter(cat => !cat.parentId).map(cat => (
+    <li key={cat._id} className="cat-tag">
+      <span className="cat-name">{cat.name}</span>
+      <button
+        type="button"
+        className="btn-delete-cat"
+        onClick={() => handleDeleteCategory(cat._id, false)}
+        title="Xoá danh mục"
+      ></button>
+    </li>
+  ))}
+</ul>
+
+          )}
         </div>
         {/* ==== Danh mục CON ==== */}
         <div>
@@ -281,18 +327,37 @@ function ProductForm({ onSubmit, editingProduct }) {
               <button type="button" onClick={() => setShowAddSubcategory(false)}>Huỷ</button>
             </div>
           )}
+
+          {/* Danh sách danh mục con có thể xoá */}
+          {subcategories.length > 0 && (
+            <ul className="cat-list-admin">
+    {subcategories.map(sub => (
+      <li key={sub._id} className="cat-tag">
+        <span className="cat-name">{sub.name}</span>
+        <button
+          type="button"
+          className="btn-delete-cat"
+          onClick={() => handleDeleteCategory(sub._id, true)}
+          title="Xoá danh mục"
+        ></button>
+      </li>
+    ))}
+  </ul>
+          )}
         </div>
-        <div style={{ margin: '8px 0 0 0' }}>
-          <label>
-            <input
-              type="checkbox"
-              checked={!!form.flagship}
-              onChange={handleFlagshipChange}
-              style={{ marginRight: 6 }}
-            />
-            Sản phẩm Flagship
-          </label>
-        </div>
+       <div className="flagship-checkbox-block">
+  <label className="flagship-checkbox-label">
+    <input
+      type="checkbox"
+      checked={!!form.flagship}
+      onChange={handleFlagshipChange}
+      className="flagship-checkbox-input"
+    />
+    <span className="flagship-checkbox-custom"></span>
+    <span className="flagship-checkbox-text">Sản phẩm Flagship</span>
+  </label>
+</div>
+
         <div className="full-width">
           <label>Mô tả sản phẩm</label>
           <textarea name="description" value={form.description} onChange={handleChange} />

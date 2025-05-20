@@ -1,167 +1,166 @@
-
-
-
-.badge-row {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  position: absolute;
-  top: 8px;
-  left: 0;
-  padding: 0 12px;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.discount-badge, .installment-badge {
-  font-size: 12px;
-  font-weight: bold;
-  padding: 2.5px 10px;
-  border-radius: 7px;
-  box-shadow: 0 1px 4px rgba(200,0,0,0.06);
-  letter-spacing: 0.3px;
-  pointer-events: all;
-}
-
-.discount-badge {
-  background: #e53935;
-  color: #fff;
-}
-
-.installment-badge {
-  background: #1976d2;
-  color: #fff;
-  font-weight: 500;
-}
-
-.product-name {
-  font-size: 15.5px;
-  font-weight: 600;
-  color: #1976d2;
-  margin: 10px 0 8px 0;
-  text-align: center;
-  min-height: 36px;
-  line-height: 1.22;
-  word-break: break-word;
-}
-
-.product-name a {
-  text-decoration: none;
-  color: inherit;
-  transition: color 0.15s;
-}
-
-
-.price-wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 8px;
-  min-height: 26px;
-}
-
-.price {
-  color: #e53935;
-  font-size: 17px;
-  font-weight: bold;
-}
-
-.old-price {
-  color: #aaa;
-  font-size: 13px;
-  text-decoration: line-through;
-  margin-left: 2px;
-}
-
-.price-updating, .price-updating span {
-  color: #888;
-  font-size: 15px;
-  font-weight: 500;
-  text-align: center;
-  margin: 0 auto;
-  width: 100%;
-  display: block;
-}
-
-
-
-
-@media (max-width: 900px) {
-  .product-card {
-    min-width: 150px;
-    max-width: 100%;
-    padding: 4px 2px 12px 2px;
-    height: 300px;
-  }
-  .product-image-wrapper {
-    height: 90px;
-  }
-  .product-image {
-    max-height: 68px;
-  }
-  .product-name {
-    font-size: 13.5px;
-    min-height: 28px;
-  }
-}
-
-/* === Card sản phẩm chuẩn CellphoneS style === */
 .product-card {
-  width: 220px;
+  width: 240px;
   background: #fff;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  text-align: center;
-  padding: 16px;
-  border: 1px solid #e5e7eb;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  text-decoration: none;
-  color: inherit;
+  box-shadow: 0 2px 12px rgba(40,60,120,0.07);
+  border: 1px solid #e5e8ef;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  transition: box-shadow 0.18s, transform 0.13s;
+  margin: 0 18px 32px 0;
+  position: relative;
 }
 
 .product-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(50, 70, 170, 0.16);
+  transform: translateY(-7px) scale(1.016);
 }
 
-.product-card img {
+/* Ảnh */
+.product-image-wrapper {
   width: 100%;
-  height: 160px;
+  height: 170px;
+  background: #f5f7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid #ececf4;
+}
+.product-image {
+  max-width: 90%;
+  max-height: 150px;
   object-fit: contain;
-  margin-bottom: 12px;
+  object-position: center center;
+  background: #fff;
+  border-radius: 12px;
+  transition: filter 0.16s;
+  margin: 0 auto;
 }
 
-.product-card h4 {
-  font-size: 15px;
+/* Badge */
+.badge-row {
+  display: flex;
+  justify-content: flex-end;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  width: calc(100% - 20px);
+  gap: 6px;
+}
+
+.installment-badge {
+  background: #1565c0;
+  color: #fff;
+  font-size: 13px;
+  padding: 4px 11px 4px 11px;
+  border-radius: 7px;
   font-weight: 600;
+  letter-spacing: 0.1px;
+  box-shadow: 0 2px 6px rgba(21,101,192,0.09);
+}
+
+/* Nội dung */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  flex: 1;
+  padding: 13px 18px 15px 18px;
+}
+
+.product-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c3550;
+  text-align: center;
   margin-bottom: 6px;
-  color: #111827;
-  min-height: 38px;
-  line-height: 1.3;
+  min-height: 36px;
+  line-height: 1.22;
+  letter-spacing: 0.01em;
 }
 
-.product-card p {
-  font-size: 14px;
-  font-weight: bold;
-  color: #e60023;
-  margin-bottom: 12px;
+.product-name a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.18s;
+}
+.product-name a:hover { color: #1866c3; }
+
+.price-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.price {
+  color: #e53935;
+  font-size: 18px;
+  font-weight: 800;
+  margin-right: 4px;
+}
+.old-price {
+  color: #b7bbc6;
+  font-size: 13px;
+  text-decoration: line-through;
+  font-weight: 400;
+  margin-left: 1px;
+}
+.price-updating {
+  color: #a5a7b0;
+  font-size: 15px;
+  text-align: center;
+  width: 100%;
 }
 
-.product-card button {
-  background-color: #2563eb;
-  color: white;
-  padding: 8px 14px;
-  border: none;
+/* Nút */
+.product-button {
+  margin: 18px auto 0 auto;
+  background: #1976d2;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14.2px;
+  padding: 8px 0;
+  width: 92%;
   border-radius: 8px;
-  font-size: 14px;
+  border: none;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: background 0.13s;
+  box-shadow: 0 2px 8px rgba(60,80,170,0.07);
+  display: block;
+}
+.product-button:hover {
+  background: #1451a2;
 }
 
-.product-card button:hover {
-  background-color: #1d4ed8;
+
+
+.cart-button {
+  margin: 9px auto 0 auto;
+  background: #fbc02d;
+  color: #333;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 0;
+  width: 92%;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.13s;
+  display: block;
+  box-shadow: 0 1px 5px rgba(200, 140, 0, 0.09);
+}
+.cart-button:hover {
+  background: #f9a825;
+  color: #fff;
 }
