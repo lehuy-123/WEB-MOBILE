@@ -1,100 +1,80 @@
-
-/* src/styles/ProductDetailPage.css */
-
+/* ProductDetailPage.css */
 .product-detail-container {
-  max-width: 1280px;
-  margin: 40px auto;
-  padding: 24px;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f9fafb;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .product-detail-card {
   display: flex;
-  flex-wrap: wrap;
-  gap: 32px;
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 24px;
+  gap: 20px;
 }
 
 .product-image-wrapper {
   flex: 1;
-  min-width: 280px;
-  max-width: 480px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .product-image {
-  width: 100%;
-  max-width: 360px;
+  max-width: 100%;
   height: auto;
-  border-radius: 10px;
-  object-fit: contain;
-  border: 1px solid #eee;
-  background: #fff;
-  padding: 10px;
 }
 
 .product-info {
-  flex: 2;
-  min-width: 300px;
+  flex: 1;
 }
 
-.product-info h1 {
-  font-size: 28px;
-  margin-bottom: 16px;
-  color: #1f2937;
+.variant-selector {
+  margin: 10px 0;
+}
+
+.variant-selector select {
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 300px;
 }
 
 .product-price {
-  font-size: 20px;
-  font-weight: bold;
-  color: #dc2626;
-  margin-bottom: 16px;
-}
-
-.product-info p {
-  font-size: 16px;
-  margin: 8px 0;
-  color: #374151;
+  font-size: 1.2em;
+  margin: 10px 0;
 }
 
 .product-description {
-  margin-top: 16px;
-  font-style: italic;
-  color: #6b7280;
+  margin: 10px 0;
 }
 
 .add-to-cart {
-  display: inline-block;
-  margin-top: 24px;
-  padding: 12px 24px;
-  background-color: #2563eb;
+  background-color: #28a745;
   color: white;
+  padding: 10px 20px;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
 .add-to-cart:hover {
-  background-color: #1d4ed8;
+  background-color: #218838;
 }
 
-@media (max-width: 768px) {
-  .product-detail-card {
-    flex-direction: column;
-    align-items: center;
-  }
+.loading {
+  text-align: center;
+  font-size: 1.2em;
+}
 
-  .product-info {
-    text-align: center;
-  }
+.image-thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.thumbnail {
+  border: 2px solid transparent;
+  object-fit: cover;
+}
+
+.thumbnail.active {
+  border-color: #007bff;
 }
