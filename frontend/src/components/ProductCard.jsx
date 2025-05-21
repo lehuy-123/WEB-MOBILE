@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext'; // <--- import context
 import '../styles/ProductCard.css';
 
-function ProductCard({ product, handleAddToCart }) {
+function ProductCard({ product }) {
+  const { addToCart } = useCart(); // <--- lấy hàm từ context
+
   const priceNumber = Number(
     product?.price ??
     (product?.variants && product.variants[0]?.price)
@@ -49,7 +52,7 @@ function ProductCard({ product, handleAddToCart }) {
           </Link>
           <button
             className="cart-button"
-            onClick={() => handleAddToCart && handleAddToCart(product)}
+            onClick={() => addToCart(product)}
             type="button"
             title="Thêm vào giỏ hàng"
           >

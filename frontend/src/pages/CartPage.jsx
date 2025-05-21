@@ -1,34 +1,38 @@
-// src/pages/CartPage.jsx
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import '../styles/CartPage.css';
 
 function CartPage() {
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
 
+  // Đọc giỏ hàng từ localStorage
   useEffect(() => {
-    fetchCart();
+    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    setCart(storedCart);
+    calculateTotal(storedCart);
   }, []);
 
-  const fetchCart = async () => {
-    try {
-      const res = await axios.get('http://localhost:5001/api/cart');
-      setCart(res.data);
-      calculateTotal(res.data);
-    } catch (err) {
-      console.error('Lỗi khi lấy giỏ hàng:', err);
-    }
-  };
-
   const calculateTotal = (cartItems) => {
-    const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const subtotal = cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
     setTotal(subtotal);
   };
 
-  const handleRemove = async (id) => {
-    await axios.delete(`http://localhost:5001/api/cart/${id}`);
-    fetchCart();
+  // Cập nhật số lượng sản phẩm
+  const handleQuantityChange = (productId, newQuantity) => {
+    const updatedCart = cart.map(item =>
+      item._id === productId ? { ...item, quantity: Math.max(1, newQuantity) } : item
+    );
+    setCart(updatedCart);
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    calculateTotal(updatedCart);
+  };
+
+  // Xóa sản phẩm khỏi giỏ hàng
+  const handleRemove = (productId) => {
+    const updatedCart = cart.filter(item => item._id !== productId);
+    setCart(updatedCart);
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    calculateTotal(updatedCart);
   };
 
   return (
@@ -39,13 +43,22 @@ function CartPage() {
       ) : (
         <div className="cart-grid">
           {cart.map((item) => (
-            <div className="cart-item" key={item.productId}>
-              <img src={item.image} alt={item.name} />
+            <div className="cart-item" key={item._id}>
+              <img src={`http://localhost:5001/uploads/${item.image}`} alt={item.name} />
               <div className="cart-details">
                 <h4>{item.name}</h4>
-                <p>{item.price.toLocaleString()} VND</p>
-                <p>Số lượng: {item.quantity}</p>
-                <button onClick={() => handleRemove(item.productId)}>Xóa</button>
+                <p>{item.price ? item.price.toLocaleString() : 0} VND</p>
+                <div>
+                  Số lượng:&nbsp;
+                  <input
+                    type="number"
+                    min={1}
+                    value={item.quantity || 1}
+                    style={{ width: 48 }}
+                    onChange={e => handleQuantityChange(item._id, parseInt(e.target.value))}
+                  />
+                </div>
+                <button onClick={() => handleRemove(item._id)}>Xóa</button>
               </div>
             </div>
           ))}

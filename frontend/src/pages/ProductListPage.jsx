@@ -73,6 +73,9 @@ function SidebarCategory({ tree, selected, setSelected }) {
   );
 }
 
+
+
+
 function ProductListPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -87,16 +90,26 @@ function ProductListPage() {
 
   const tree = buildCategoryTree(categories);
 
-  // Lọc sản phẩm: nếu chọn danh mục cha -> hiện tất cả sp thuộc danh mục cha này (category === slug)
-  // Nếu chọn danh mục con -> chỉ hiện sp có subcategory === slug
+  // Hàm thêm vào giỏ hàng
+  const handleAddToCart = (product) => {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existIndex = cart.findIndex(item => item._id === product._id);
+    if (existIndex !== -1) {
+      cart[existIndex].quantity += 1;
+    } else {
+      cart.push({ ...product, quantity: 1 });
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert('Đã thêm vào giỏ hàng!');
+  };
+
+  // Lọc sản phẩm theo danh mục
   const isParentCat = categories.some(c => c.slug === category && !c.parentId);
   let filtered = products;
   if (category) {
     if (isParentCat) {
-      // Hiện tất cả sp có category === slug cha
       filtered = products.filter(p => p.category === category);
     } else {
-      // Hiện sp có subcategory === slug con
       filtered = products.filter(p => p.subcategory === category);
     }
   }
@@ -122,6 +135,11 @@ function ProductListPage() {
               )}
               <h4>{p.name}</h4>
               <p>{typeof p.price === 'number' ? `${p.price.toLocaleString()} VND` : 'Chưa có giá'}</p>
+              <button
+                className="cart-button"
+                style={{ marginTop: 12 }}
+                onClick={() => handleAddToCart(p)}
+              >Thêm vào giỏ hàng</button>
             </div>
           ))}
         </div>

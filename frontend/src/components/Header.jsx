@@ -1,19 +1,40 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import '../styles/Header.css';
 
 function Header() {
-  const user = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // Lấy thông tin user từ token (cả login thường lẫn login Google)
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios
+        .get('http://localhost:5001/api/user/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => setUser(res.data))
+        .catch(() => {
+          setUser(null);
+          localStorage.removeItem('token');
+        });
+    } else {
+      setUser(null);
+    }
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    setShowMenu(false); // 👈 đóng menu sau khi logout
+    localStorage.removeItem('token');
+    setUser(null);
+    setShowMenu(false);
     navigate('/login');
   };
 
-  // 👇 Hàm đóng menu sau khi click vào bất kỳ link
   const handleLinkClick = () => {
     setShowMenu(false);
   };
@@ -49,7 +70,9 @@ function Header() {
 
           {user ? (
             <>
-              <Link to="/profile" onClick={handleLinkClick}>👤 {user.name || 'Tài khoản'}</Link>
+              <Link to="/profile" onClick={handleLinkClick}>
+                👤 {user.name || 'Tài khoản'}
+              </Link>
               {user.role === 'admin' && (
                 <Link to="/admin" onClick={handleLinkClick}>🛠 Quản trị</Link>
               )}

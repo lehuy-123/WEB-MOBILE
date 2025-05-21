@@ -3,10 +3,13 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
-const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const path = require('path');
+const passport = require('passport');
+const session = require('express-session');
+require('./config/passport'); // Cấu hình passport Google
 
 // Import routes
+const googleAuthRoutes = require('./routes/auth'); // Route Google OAuth
 const productRoutes = require('./routes/productRoutes');
 const brandRoutes = require('./routes/brandRoutes');
 const cartRoutes = require('./routes/cartRoutes');
@@ -16,12 +19,10 @@ const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const bannerRoutes = require('./routes/bannerRoutes');
-const categoryRoutes = require('./routes/categoryRoutes'); // CHỈ GỌI 1 LẦN
+const categoryRoutes = require('./routes/categoryRoutes');
 
 // Load biến môi trường
 dotenv.config();
-
-// Kết nối MongoDB
 connectDB();
 
 // Khởi tạo ứng dụng Express
@@ -32,7 +33,19 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Đăng ký routes
+// Bổ sung middleware cho session & passport
+app.use(session({
+  secret: 'supersecret', // hoặc process.env.SESSION_SECRET
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Đăng ký routes Google OAuth (KHÔNG prefix /api)
+app.use('/auth', googleAuthRoutes);
+
+// Đăng ký các route API như cũ
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/products', productRoutes);
@@ -41,7 +54,7 @@ app.use('/api/banners', bannerRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payment-methods', paymentRoutes);
-app.use('/api/categories', categoryRoutes); // CHỈ ĐĂNG KÝ 1 LẦN
+app.use('/api/categories', categoryRoutes);
 app.use('/api/upload', uploadRoutes);
 
 // Static uploads
@@ -53,6 +66,7 @@ app.get('/', (req, res) => {
 });
 
 // Middleware xử lý lỗi
+const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 app.use(notFound);
 app.use(errorHandler);
 

@@ -19,6 +19,9 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminPayments from './pages/admin/AdminPayments';
 import AdminUsers from './pages/admin/AdminUsers';
 
+// 👉 Thêm dòng này:
+import AuthCallback from './pages/AuthCallback';
+
 function MainLayout() {
   return (
     <>
@@ -33,6 +36,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* ✅ Route callback Google login, đặt ngoài layout để tránh render header/footer không cần thiết */}
+        <Route path="/auth/callback" element={<AuthCallback />} />
 
         {/* 🌐 Layout người dùng */}
         <Route element={<MainLayout />}>
@@ -47,13 +52,12 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
         </Route>
 
-        {/* 🛠️ Layout admin (tùy bạn bổ sung sau nếu dùng sidebar/header riêng) */}
+        {/* 🛠️ Layout admin */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/products" element={<AdminProducts />} />
         <Route path="/admin/orders" element={<AdminOrders />} />
         <Route path="/admin/payments" element={<AdminPayments />} />
         <Route path="/admin/users" element={<AdminUsers />} />
-
       </Routes>
     </BrowserRouter>
   );
