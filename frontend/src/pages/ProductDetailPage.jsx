@@ -4,11 +4,17 @@ import { fetchProductById } from '../api/productAPI';
 import { Helmet } from 'react-helmet';
 import '../styles/ProductDetailPage.css';
 
+// Hàm sinh id duy nhất cho mỗi item trong giỏ hàng (bao gồm cả biến thể)
+const getCartItemId = (product, variant) => {
+  if (!variant) return product._id;
+  return `${product._id}_${variant.color || ''}_${variant.storage || ''}_${variant.ram || ''}`;
+};
+
 function ProductDetailPage() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [selectedVariant, setSelectedVariant] = useState(null);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0); // Theo dõi ảnh đang chọn
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
@@ -17,7 +23,7 @@ function ProductDetailPage() {
         setProduct(data);
         if (data.variants && data.variants.length > 0) {
           setSelectedVariant(data.variants[0]);
-          setSelectedImageIndex(0); // Đặt lại chỉ số ảnh khi chọn sản phẩm
+          setSelectedImageIndex(0);
         }
       })
       .catch((err) => {
@@ -27,20 +33,17 @@ function ProductDetailPage() {
 
   if (!product) return <p className="loading">Đang tải chi tiết sản phẩm...</p>;
 
-  // Xử lý khi chọn biến thể
   const handleVariantChange = (variant) => {
     setSelectedVariant(variant);
-    setSelectedImageIndex(0); // Đặt lại chỉ số ảnh khi chọn biến thể mới
-    setImageError(false); // Reset lỗi ảnh
+    setSelectedImageIndex(0);
+    setImageError(false);
   };
 
-  // Xử lý khi chọn ảnh
   const handleImageChange = (index) => {
     setSelectedImageIndex(index);
-    setImageError(false); // Reset lỗi ảnh khi chọn ảnh mới
+    setImageError(false);
   };
 
-  // Định dạng nhãn cho biến thể
   const getVariantLabel = (variant) => {
     const parts = [
       variant.color || 'Không xác định',
@@ -50,22 +53,17 @@ function ProductDetailPage() {
     return parts.join(', ');
   };
 
-  // Xác định URL ảnh
   const getImageUrl = () => {
     const images = selectedVariant?.images && Array.isArray(selectedVariant.images) && selectedVariant.images.length > 0
       ? selectedVariant.images
       : (product.image ? [product.image] : []);
-
     if (images.length === 0) {
-      return 'https://via.placeholder.com/300x300?text=No+Image'; // Placeholder ảnh
+      return 'https://via.placeholder.com/300x300?text=No+Image';
     }
-
     const imagePath = images[selectedImageIndex] || images[0];
-    // Đảm bảo URL đúng với cấu trúc backend
     return imagePath.startsWith('http') ? imagePath : `http://localhost:5001/uploads/${imagePath}`;
   };
 
-  // Xử lý lỗi tải ảnh
   const handleImageError = () => {
     setImageError(true);
   };
@@ -76,10 +74,11 @@ function ProductDetailPage() {
   const handleAddToCart = () => {
     if (!product) return;
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartItemId = getCartItemId(product, selectedVariant);
 
-    // Tạo sản phẩm thêm vào giỏ, có lưu cả biến thể nếu có
     const productToAdd = {
       _id: product._id,
+      cartItemId, // QUAN TRỌNG: sử dụng cartItemId này
       name: product.name,
       price: selectedVariant?.price || product.price || 0,
       image: selectedVariant?.images?.[0] || product.image || '',
@@ -93,20 +92,8 @@ function ProductDetailPage() {
         : undefined
     };
 
-    // Kiểm tra sản phẩm (và biến thể) đã có trong giỏ chưa
-    const existIndex = cart.findIndex(item =>
-      item._id === productToAdd._id &&
-      (
-        (!item.variant && !productToAdd.variant) ||
-        (
-          item.variant &&
-          productToAdd.variant &&
-          item.variant.color === productToAdd.variant.color &&
-          item.variant.ram === productToAdd.variant.ram &&
-          item.variant.storage === productToAdd.variant.storage
-        )
-      )
-    );
+    // Kiểm tra sản phẩm cùng cartItemId đã có chưa
+    const existIndex = cart.findIndex(item => item.cartItemId === cartItemId);
 
     if (existIndex !== -1) {
       cart[existIndex].quantity += 1;
@@ -161,7 +148,6 @@ function ProductDetailPage() {
 
         <section className="product-info">
           <h1>{product.name}</h1>
-
           {/* Dropdown chọn biến thể */}
           {product.variants && product.variants.length > 0 ? (
             <div className="variant-selector">
