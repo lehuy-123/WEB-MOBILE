@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import '../styles/CartPage.css';
+import { useCart } from '../context/CartContext';
 
 function CartPage() {
   const [cart, setCart] = useState([]);

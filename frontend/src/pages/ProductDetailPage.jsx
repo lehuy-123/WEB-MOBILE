@@ -55,7 +55,7 @@ function ProductDetailPage() {
     const images = selectedVariant?.images && Array.isArray(selectedVariant.images) && selectedVariant.images.length > 0
       ? selectedVariant.images
       : (product.image ? [product.image] : []);
-    
+
     if (images.length === 0) {
       return 'https://via.placeholder.com/300x300?text=No+Image'; // Placeholder ảnh
     }
@@ -68,6 +68,54 @@ function ProductDetailPage() {
   // Xử lý lỗi tải ảnh
   const handleImageError = () => {
     setImageError(true);
+  };
+
+  // ========================
+  // XỬ LÝ THÊM VÀO GIỎ HÀNG
+  // ========================
+  const handleAddToCart = () => {
+    if (!product) return;
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    // Tạo sản phẩm thêm vào giỏ, có lưu cả biến thể nếu có
+    const productToAdd = {
+      _id: product._id,
+      name: product.name,
+      price: selectedVariant?.price || product.price || 0,
+      image: selectedVariant?.images?.[0] || product.image || '',
+      quantity: 1,
+      variant: selectedVariant
+        ? {
+            color: selectedVariant.color,
+            ram: selectedVariant.ram,
+            storage: selectedVariant.storage
+          }
+        : undefined
+    };
+
+    // Kiểm tra sản phẩm (và biến thể) đã có trong giỏ chưa
+    const existIndex = cart.findIndex(item =>
+      item._id === productToAdd._id &&
+      (
+        (!item.variant && !productToAdd.variant) ||
+        (
+          item.variant &&
+          productToAdd.variant &&
+          item.variant.color === productToAdd.variant.color &&
+          item.variant.ram === productToAdd.variant.ram &&
+          item.variant.storage === productToAdd.variant.storage
+        )
+      )
+    );
+
+    if (existIndex !== -1) {
+      cart[existIndex].quantity += 1;
+    } else {
+      cart.push(productToAdd);
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert('🛒 Đã thêm vào giỏ hàng!');
   };
 
   return (
@@ -142,16 +190,18 @@ function ProductDetailPage() {
             Giá: <strong style={{ color: 'red' }}>
               {selectedVariant && typeof selectedVariant.price === 'number'
                 ? selectedVariant.price.toLocaleString() + ' VND'
-                : 'Chưa cập nhật'}
+                : (typeof product.price === 'number'
+                    ? product.price.toLocaleString() + ' VND'
+                    : 'Chưa cập nhật')}
             </strong>
           </p>
           <p><strong>Thương hiệu:</strong> {product.brand || 'Đang cập nhật'}</p>
           <p><strong>RAM:</strong> {selectedVariant?.ram || 'Đang cập nhật'}</p>
           <p><strong>Bộ nhớ:</strong> {selectedVariant?.storage || 'Đang cập nhật'}</p>
           <p><strong>Màu sắc:</strong> {selectedVariant?.color || 'Đang cập nhật'}</p>
-          <p><strong>Tồn kho:</strong> {selectedVariant?.quantity || 0} sản phẩm</p>
+          <p><strong>Tồn kho:</strong> {selectedVariant?.quantity ?? 0} sản phẩm</p>
           <p className="product-description">{product.description || 'Không có mô tả'}</p>
-          <button className="add-to-cart">🛒 Thêm vào giỏ hàng</button>
+          <button className="add-to-cart" onClick={handleAddToCart}>🛒 Thêm vào giỏ hàng</button>
         </section>
       </article>
     </main>

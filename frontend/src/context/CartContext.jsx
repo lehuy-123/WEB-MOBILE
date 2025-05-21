@@ -1,21 +1,32 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-// 1. Tạo context
 const CartContext = createContext();
 
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState([]);
+  // Khởi tạo từ localStorage luôn
+  const [cart, setCart] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("cart")) || [];
+    } catch {
+      return [];
+    }
+  });
 
-  // Load cart từ localStorage khi reload/truy cập lại
-  useEffect(() => {
-    const data = localStorage.getItem("cart");
-    if (data) setCart(JSON.parse(data));
-  }, []);
-
-  // Lưu cart vào localStorage khi thay đổi
+  // Lưu vào localStorage khi cart thay đổi
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
+
+  // (Tuỳ chọn) Đồng bộ giữa nhiều tab
+  useEffect(() => {
+    const syncCart = (e) => {
+      if (e.key === "cart") {
+        setCart(JSON.parse(e.newValue || "[]"));
+      }
+    };
+    window.addEventListener("storage", syncCart);
+    return () => window.removeEventListener("storage", syncCart);
+  }, []);
 
   // Thêm sản phẩm vào giỏ
   const addToCart = (product) => {
@@ -66,5 +77,4 @@ export function CartProvider({ children }) {
   );
 }
 
-// 2. Custom hook để dùng ở mọi nơi
 export const useCart = () => useContext(CartContext);
