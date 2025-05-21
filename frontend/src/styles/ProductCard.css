@@ -1,166 +1,182 @@
 .product-card {
   width: 240px;
   background: #fff;
-  border-radius: 14px;
+  border-radius: 18px;
+  box-shadow: 0 4px 20px rgba(30, 38, 135, 0.07);
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(40,60,120,0.07);
-  border: 1px solid #e5e8ef;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  transition: box-shadow 0.18s, transform 0.13s;
-  margin: 0 18px 32px 0;
-  position: relative;
+  transition: transform 0.18s, box-shadow 0.18s;
+  margin: 0 auto;
+  border: 1px solid #ececec;
 }
 
 .product-card:hover {
-  box-shadow: 0 8px 24px rgba(50, 70, 170, 0.16);
-  transform: translateY(-7px) scale(1.016);
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 12px 32px rgba(80, 80, 140, 0.12);
 }
 
-/* Ảnh */
 .product-image-wrapper {
-  width: 100%;
-  height: 170px;
-  background: #f5f7fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f6f8fa;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   overflow: hidden;
-  border-bottom: 1px solid #ececf4;
-}
-.product-image {
-  max-width: 90%;
-  max-height: 150px;
-  object-fit: contain;
-  object-position: center center;
-  background: #fff;
-  border-radius: 12px;
-  transition: filter 0.16s;
-  margin: 0 auto;
 }
 
-/* Badge */
-.badge-row {
-  display: flex;
-  justify-content: flex-end;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-  width: calc(100% - 20px);
-  gap: 6px;
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  background: #f3f5f7;
 }
 
 .installment-badge {
-  background: #1565c0;
-  color: #fff;
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #ffe066;
+  color: #ad7800;
   font-size: 13px;
-  padding: 4px 11px 4px 11px;
-  border-radius: 7px;
   font-weight: 600;
-  letter-spacing: 0.1px;
-  box-shadow: 0 2px 6px rgba(21,101,192,0.09);
+  padding: 4px 11px;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(220,180,20,0.06);
+  z-index: 2;
 }
 
-/* Nội dung */
-.card-content {
+.product-card-body {
+  flex: 1;
+  padding: 18px 15px 14px 15px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
-  flex: 1;
-  padding: 13px 18px 15px 18px;
+  gap: 12px;
+}
+
+.product-name-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .product-name {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
-  color: #2c3550;
+  margin: 0;
   text-align: center;
-  margin-bottom: 6px;
-  min-height: 36px;
-  line-height: 1.22;
-  letter-spacing: 0.01em;
+  line-height: 1.3;
+  height: 40px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
-.product-name a {
-  color: inherit;
-  text-decoration: none;
-  transition: color 0.18s;
-}
-.product-name a:hover { color: #1866c3; }
 
 .price-wrapper {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 4px;
-}
-.price-row {
-  display: flex;
+  justify-content: center;
   align-items: baseline;
   gap: 10px;
+  min-height: 30px;
 }
+
 .price {
-  color: #e53935;
+  color: #d0021b;
   font-size: 18px;
-  font-weight: 800;
-  margin-right: 4px;
+  font-weight: 700;
 }
+
 .old-price {
-  color: #b7bbc6;
-  font-size: 13px;
+  color: #969696;
+  font-size: 15px;
   text-decoration: line-through;
   font-weight: 400;
-  margin-left: 1px;
+  margin-left: 4px;
 }
+
 .price-updating {
-  color: #a5a7b0;
-  font-size: 15px;
-  text-align: center;
-  width: 100%;
+  color: #999;
+  font-size: 16px;
 }
 
-/* Nút */
-.product-button {
-  margin: 18px auto 0 auto;
-  background: #1976d2;
-  color: #fff;
-  font-weight: 600;
-  font-size: 14.2px;
+.product-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.product-button,
+.cart-button {
+  flex: 1;
   padding: 8px 0;
-  width: 92%;
-  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
   border: none;
+  border-radius: 8px;
+  transition: background 0.18s, color 0.18s;
   cursor: pointer;
-  transition: background 0.13s;
-  box-shadow: 0 2px 8px rgba(60,80,170,0.07);
-  display: block;
 }
+
+
+
+
+.product-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: auto;
+}
+
+.product-actions a, .product-actions button {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 10px 0;
+  height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, color 0.18s;
+  cursor: pointer;
+  text-decoration: none !important;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.product-button {
+  background: #e9ecef;
+  color: #323232;
+}
+
 .product-button:hover {
-  background: #1451a2;
+  background: #d3d6db;
+  color: #000;
 }
-
-
 
 .cart-button {
-  margin: 9px auto 0 auto;
-  background: #fbc02d;
-  color: #333;
-  font-weight: 600;
-  font-size: 14px;
-  padding: 8px 0;
-  width: 92%;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: background 0.13s;
-  display: block;
-  box-shadow: 0 1px 5px rgba(200, 140, 0, 0.09);
-}
-.cart-button:hover {
-  background: #f9a825;
+  background: #0067ff;
   color: #fff;
+}
+
+.cart-button:hover {
+  background: #0052cc;
+  color: #fff;
+}
+
+.cart-button svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin-bottom: 2px;
+  /* Có thể tăng giảm size SVG ở đây nếu muốn */
 }

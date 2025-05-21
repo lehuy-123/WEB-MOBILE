@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom';
 import '../styles/ProductCard.css';
 
-function ProductCard({ product }) {
-  // Ưu tiên lấy product.price, nếu không thì lấy giá từ variant đầu tiên
+function ProductCard({ product, handleAddToCart }) {
   const priceNumber = Number(
     product?.price ??
     (product?.variants && product.variants[0]?.price)
@@ -14,49 +13,48 @@ function ProductCard({ product }) {
     : '/images/placeholder.png';
 
   return (
-<div className="product-card">
-  <div className="product-image-wrapper">
-    <div className="badge-row">
-    
-      <span className="installment-badge">Trả góp 0%</span>
-    </div>
-    <img
-      src={imageUrl}
-      alt={product?.name || 'Sản phẩm'}
-      className="product-image"
-      onError={e => (e.target.src = '/images/placeholder.png')}
-    />
-  </div>
-  <div className="card-content">
-    <h3 className="product-name">
-      <Link to={`/product/${product?._id}`}>{product?.name || 'Không rõ tên'}</Link>
-    </h3>
-    <div className="price-wrapper">
-      {hasValidPrice ? (
-        <div className="price-row">
-          <span className="price">{priceNumber.toLocaleString()} VND</span>
-          <span className="old-price">{(priceNumber * 1.1).toLocaleString()} VND</span>
-        </div>
-      ) : (
-        <span className="price-updating">Giá đang cập nhật</span>
-      )}
-    </div>
-    <Link to={`/product/${product?._id}`}>
-      <button className="product-button">Xem chi tiết</button>
-    </Link>
-    <button
-      className="cart-button"
-      onClick={() => handleAddToCart(product)}
-      type="button"
-    >
-      Thêm vào giỏ hàng
-    </button>
-  </div>
+    <div className="product-card">
+      <div className="product-image-wrapper">
+        <span className="installment-badge">Trả góp 0%</span>
+        <img
+          src={imageUrl}
+          alt={product?.name || 'Sản phẩm'}
+          className="product-image"
+          onError={e => (e.target.src = '/images/placeholder.png')}
+        />
+      </div>
+      <div className="product-card-body">
+        <Link to={`/product/${product?._id}`} className="product-name-link">
+          <h3 className="product-name">{product?.name || 'Không rõ tên'}</h3>
+        </Link>
+        <div className="price-wrapper">
+  {hasValidPrice ? (
+    <span className="price">{priceNumber.toLocaleString()} VND</span>
+  ) : (
+    <span className="price-updating">Giá đang cập nhật</span>
+  )}
 </div>
 
+        <div className="product-actions">
+          <Link to={`/product/${product?._id}`}>
+            <button className="product-button">Xem chi tiết</button>
+          </Link>
+         <button
+  className="cart-button"
+  onClick={() => handleAddToCart && handleAddToCart(product)}
+  type="button"
+  title="Thêm vào giỏ hàng"
+>
+  {/* SVG icon xe đẩy */}
+  <svg width="21" height="21" viewBox="0 0 21 21" fill="none">
+    <path d="M6.5 17.5a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5zm8 0a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5zm-11-15h2l2.68 10.39a1.25 1.25 0 0 0 1.21.86h6.97a1.25 1.25 0 0 0 1.21-.92l2.03-7.03H5.21" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+</button>
 
-);
-
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default ProductCard;
