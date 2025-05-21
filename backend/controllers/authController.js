@@ -17,7 +17,7 @@ exports.registerUser = async (req, res) => {
     const user = new User({
       name,
       email,
-      password, // truyền plain-text
+      password, // truyền plain-textbb
       role: 'user',
     });
 
