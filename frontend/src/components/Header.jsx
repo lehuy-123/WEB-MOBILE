@@ -63,10 +63,10 @@ function Header() {
         </button>
 
         <nav className={`main-nav ${showMenu ? 'show' : ''}`}>
-          <Link to="/" onClick={handleLinkClick}>🏠 Trang chủ</Link>
-          <Link to="/products" onClick={handleLinkClick}>📱 Sản phẩm</Link>
-          <Link to="/cart" onClick={handleLinkClick}>🛒 Giỏ hàng</Link>
-          <Link to="/orders" onClick={handleLinkClick}>🧾 Đơn hàng</Link>
+          <Link to="/" onClick={handleLinkClick}> Trang chủ</Link>
+          <Link to="/products" onClick={handleLinkClick}> Sản phẩm</Link>
+          <Link to="/cart" onClick={handleLinkClick}> Giỏ hàng</Link>
+          <Link to="/orders" onClick={handleLinkClick}> Đơn hàng</Link>
 
           {user ? (
             <>

@@ -5,22 +5,27 @@ function CartPage() {
   const [cart, setCart] = useState([]);
   const [total, setTotal] = useState(0);
 
-  // Đọc giỏ hàng từ localStorage
+  // Đọc giỏ hàng từ localStorage khi component mount
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
     setCart(storedCart);
     calculateTotal(storedCart);
   }, []);
 
+  // Tính tổng tiền
   const calculateTotal = (cartItems) => {
-    const subtotal = cartItems.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
+    const subtotal = cartItems.reduce(
+      (sum, item) => sum + (Number(item.price) || 0) * (item.quantity || 1),
+      0
+    );
     setTotal(subtotal);
   };
 
-  // Cập nhật số lượng sản phẩm
+  // Cập nhật số lượng sản phẩm trong giỏ
   const handleQuantityChange = (productId, newQuantity) => {
+    const quantity = Math.max(1, isNaN(newQuantity) ? 1 : newQuantity);
     const updatedCart = cart.map(item =>
-      item._id === productId ? { ...item, quantity: Math.max(1, newQuantity) } : item
+      item._id === productId ? { ...item, quantity } : item
     );
     setCart(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
@@ -44,10 +49,21 @@ function CartPage() {
         <div className="cart-grid">
           {cart.map((item) => (
             <div className="cart-item" key={item._id}>
-              <img src={`http://localhost:5001/uploads/${item.image}`} alt={item.name} />
+              <img
+                src={item.image
+                  ? `http://localhost:5001/uploads/${item.image}`
+                  : '/images/placeholder.png'}
+                alt={item.name}
+                style={{ width: 100, height: 100, objectFit: 'contain' }}
+                onError={e => (e.target.src = '/images/placeholder.png')}
+              />
               <div className="cart-details">
                 <h4>{item.name}</h4>
-                <p>{item.price ? item.price.toLocaleString() : 0} VND</p>
+                <p>
+                  {item.price
+                    ? `${Number(item.price).toLocaleString()} VND`
+                    : '0 VND'}
+                </p>
                 <div>
                   Số lượng:&nbsp;
                   <input
@@ -66,7 +82,9 @@ function CartPage() {
       )}
       <div className="cart-total">
         <h3>Tổng tiền: {total.toLocaleString()} VND</h3>
-        <button className="checkout-btn">Tiếp tục đặt hàng</button>
+        <button className="checkout-btn" disabled={cart.length === 0}>
+          Tiếp tục đặt hàng
+        </button>
       </div>
     </div>
   );

@@ -1,10 +1,7 @@
 import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext'; // <--- import context
 import '../styles/ProductCard.css';
 
-function ProductCard({ product }) {
-  const { addToCart } = useCart(); // <--- lấy hàm từ context
-
+function ProductCard({ product, handleAddToCart }) {
   const priceNumber = Number(
     product?.price ??
     (product?.variants && product.variants[0]?.price)
@@ -30,14 +27,10 @@ function ProductCard({ product }) {
         <Link to={`/product/${product?._id}`} className="product-name-link">
           <h3 className="product-name">{product?.name || 'Không rõ tên'}</h3>
         </Link>
-
-        {/* --- Nội dung cứng đẹp, thu hút khách hàng --- */}
         <div className="product-card-info">
           <span>✔️ Bảo hành chính hãng 12 tháng</span>
           <span>🚚 Giao hàng toàn quốc</span>
         </div>
-        {/* --- Kết thúc nội dung cứng --- */}
-
         <div className="price-wrapper">
           {hasValidPrice ? (
             <span className="price">{priceNumber.toLocaleString()} VND</span>
@@ -45,14 +38,13 @@ function ProductCard({ product }) {
             <span className="price-updating">Giá đang cập nhật</span>
           )}
         </div>
-
         <div className="product-actions">
           <Link to={`/product/${product?._id}`}>
             <button className="product-button">Xem chi tiết</button>
           </Link>
           <button
             className="cart-button"
-            onClick={() => addToCart(product)}
+            onClick={() => handleAddToCart(product)}
             type="button"
             title="Thêm vào giỏ hàng"
           >

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { fetchProducts } from '../api/productAPI';
+import ProductCard from '../components/ProductCard'; // 👈 Import chuẩn hóa
 import '../styles/ProductListPage.css';
+import { toast } from 'react-toastify';
 
 // Build cây danh mục
 function buildCategoryTree(categories) {
@@ -75,11 +77,10 @@ function SidebarCategory({ tree, selected, setSelected }) {
 
 
 
-
 function ProductListPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [category, setCategory] = useState(''); // slug danh mục chọn
+  const [category, setCategory] = useState('');
 
   useEffect(() => {
     fetchProducts().then(setProducts);
@@ -91,19 +92,19 @@ function ProductListPage() {
   const tree = buildCategoryTree(categories);
 
   // Hàm thêm vào giỏ hàng
-  const handleAddToCart = (product) => {
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existIndex = cart.findIndex(item => item._id === product._id);
-    if (existIndex !== -1) {
-      cart[existIndex].quantity += 1;
-    } else {
-      cart.push({ ...product, quantity: 1 });
-    }
-    localStorage.setItem('cart', JSON.stringify(cart));
-    alert('Đã thêm vào giỏ hàng!');
-  };
+const handleAddToCart = (product) => {
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const existIndex = cart.findIndex(item => item._id === product._id);
+  if (existIndex !== -1) {
+    cart[existIndex].quantity += 1;
+  } else {
+    cart.push({ ...product, quantity: 1 });
+  }
+  localStorage.setItem('cart', JSON.stringify(cart));
+  toast.success('🛒 Đã thêm vào giỏ hàng!');
+};
 
-  // Lọc sản phẩm theo danh mục
+  // Lọc sản phẩm
   const isParentCat = categories.some(c => c.slug === category && !c.parentId);
   let filtered = products;
   if (category) {
@@ -116,31 +117,18 @@ function ProductListPage() {
 
   return (
     <div className="main-flex-container">
-      <SidebarCategory
-        tree={tree}
-        selected={category}
-        setSelected={setCategory}
-      />
+      <SidebarCategory tree={tree} selected={category} setSelected={setCategory} />
       <main className="main-product-content">
         <h2 style={{ margin: '18px 0 22px' }}>🛒 Danh sách sản phẩm</h2>
         <div className="product-grid">
           {filtered.length === 0 ? (
             <div>Không có sản phẩm nào</div>
           ) : filtered.map(p => (
-            <div key={p._id || p.id} className="product-card">
-              {p.image ? (
-                <img src={`http://localhost:5001/uploads/${p.image}`} alt={p.name} className="product-image" />
-              ) : (
-                <div className="no-image">Không có ảnh</div>
-              )}
-              <h4>{p.name}</h4>
-              <p>{typeof p.price === 'number' ? `${p.price.toLocaleString()} VND` : 'Chưa có giá'}</p>
-              <button
-                className="cart-button"
-                style={{ marginTop: 12 }}
-                onClick={() => handleAddToCart(p)}
-              >Thêm vào giỏ hàng</button>
-            </div>
+            <ProductCard
+              key={p._id || p.id}
+              product={p}
+              handleAddToCart={handleAddToCart}
+            />
           ))}
         </div>
       </main>

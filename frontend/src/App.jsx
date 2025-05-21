@@ -1,4 +1,3 @@
-// src/App.jsx
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -19,8 +18,11 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminPayments from './pages/admin/AdminPayments';
 import AdminUsers from './pages/admin/AdminUsers';
 
-// 👉 Thêm dòng này:
 import AuthCallback from './pages/AuthCallback';
+
+// ✅ Thêm Toastify cho toàn app
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function MainLayout() {
   return (
@@ -36,7 +38,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ✅ Route callback Google login, đặt ngoài layout để tránh render header/footer không cần thiết */}
+        {/* ✅ Callback Google Login */}
         <Route path="/auth/callback" element={<AuthCallback />} />
 
         {/* 🌐 Layout người dùng */}
@@ -58,7 +60,15 @@ function App() {
         <Route path="/admin/orders" element={<AdminOrders />} />
         <Route path="/admin/payments" element={<AdminPayments />} />
         <Route path="/admin/users" element={<AdminUsers />} />
+
+        {/* Trang 404 */}
+        <Route path="*" element={
+          <div style={{padding: 60, textAlign: 'center', fontSize: 24, color: '#ff4d4f'}}>
+            404 – Không tìm thấy trang!
+          </div>
+        } />
       </Routes>
+      <ToastContainer position="top-right" autoClose={1800} />
     </BrowserRouter>
   );
 }
