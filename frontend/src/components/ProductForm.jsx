@@ -1,7 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../styles/ProductForm.css';
-
 
 function ProductForm({ onSubmit, editingProduct }) {
   const [categories, setCategories] = useState([]);
@@ -41,7 +41,6 @@ function ProductForm({ onSubmit, editingProduct }) {
   useEffect(() => {
     if (editingProduct) {
       let subSlug = editingProduct.subcategory;
-      // Nếu là _id hoặc tên, map sang slug (phòng dữ liệu cũ)
       if (
         subSlug &&
         categories.length > 0 &&
@@ -70,7 +69,6 @@ function ProductForm({ onSubmit, editingProduct }) {
           : [{ color: '', ram: '', storage: '', price: '', stock: '', images: [] }]
       });
     }
-    // eslint-disable-next-line
   }, [editingProduct, categories]);
 
   // Thêm danh mục cha
@@ -126,7 +124,6 @@ function ProductForm({ onSubmit, editingProduct }) {
       });
       alert('✅ Xoá danh mục thành công!');
       fetchCategories();
-      // Reset chọn nếu đang chọn danh mục vừa xoá
       if (form.category === catId) setForm({ ...form, category: '', subcategory: '' });
       if (form.subcategory === catId) setForm({ ...form, subcategory: '' });
     } catch (err) {
@@ -195,6 +192,10 @@ function ProductForm({ onSubmit, editingProduct }) {
   // Xử lý submit
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!form.name.trim()) {
+      setError('Vui lòng nhập tên sản phẩm!');
+      return;
+    }
     if (!form.category) {
       setError('Vui lòng chọn danh mục cha!');
       return;
@@ -203,16 +204,37 @@ function ProductForm({ onSubmit, editingProduct }) {
       setError('Vui lòng chọn danh mục con!');
       return;
     }
+    if (!form.variants.length) {
+      setError('Vui lòng thêm ít nhất một biến thể!');
+      return;
+    }
+    const invalidVariant = form.variants.some(
+      v =>
+        !v.color.trim() ||
+        !v.ram.trim() ||
+        !v.storage.trim() ||
+        isNaN(Number(v.price)) ||
+        Number(v.price) < 0 ||
+        isNaN(Number(v.stock)) ||
+        Number(v.stock) < 0
+    );
+    if (invalidVariant) {
+      setError('Vui lòng điền đầy đủ và hợp lệ thông tin biến thể (màu, RAM, bộ nhớ, giá, tồn kho)!');
+      return;
+    }
+
     setError('');
     const mainPrice = Number(form.variants[0]?.price || 0);
     const formData = new FormData();
     formData.append('name', form.name);
     formData.append('brand', form.brand);
-    formData.append('category', form.category);      // SLUG
-    formData.append('subcategory', form.subcategory);// SLUG
+    formData.append('category', form.category);
+    formData.append('subcategory', form.subcategory);
     formData.append('description', form.description);
     formData.append('price', mainPrice);
-    formData.append('image', form.image);
+    if (form.image) {
+      formData.append('image', form.image);
+    }
     formData.append('flagship', form.flagship ? 'true' : 'false');
     formData.append('variants', JSON.stringify(
       form.variants.map(v => ({
@@ -226,6 +248,7 @@ function ProductForm({ onSubmit, editingProduct }) {
     ));
     formData.append('content', '');
     formData.append('specs', JSON.stringify([]));
+    console.log('Dữ liệu gửi đi:', Object.fromEntries(formData));
     onSubmit && onSubmit(formData);
   };
 
@@ -248,7 +271,6 @@ function ProductForm({ onSubmit, editingProduct }) {
           <label>Thương hiệu</label>
           <input name="brand" value={form.brand} onChange={handleChange} />
         </div>
-        {/* ==== Danh mục CHA ==== */}
         <div>
           <label>Danh mục</label>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -277,26 +299,22 @@ function ProductForm({ onSubmit, editingProduct }) {
               <button type="button" onClick={() => setShowAddCategory(false)}>Huỷ</button>
             </div>
           )}
-
-          {/* Danh sách danh mục cha có thể xoá */}
           {categories.filter(cat => !cat.parentId).length > 0 && (
             <ul className="cat-list-admin">
-  {categories.filter(cat => !cat.parentId).map(cat => (
-    <li key={cat._id} className="cat-tag">
-      <span className="cat-name">{cat.name}</span>
-      <button
-        type="button"
-        className="btn-delete-cat"
-        onClick={() => handleDeleteCategory(cat._id, false)}
-        title="Xoá danh mục"
-      ></button>
-    </li>
-  ))}
-</ul>
-
+              {categories.filter(cat => !cat.parentId).map(cat => (
+                <li key={cat._id} className="cat-tag">
+                  <span className="cat-name">{cat.name}</span>
+                  <button
+                    type="button"
+                    className="btn-delete-cat"
+                    onClick={() => handleDeleteCategory(cat._id, false)}
+                    title="Xoá danh mục"
+                  ></button>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
-        {/* ==== Danh mục CON ==== */}
         <div>
           <label>Danh mục con</label>
           <div style={{ display: 'flex', gap: 6 }}>
@@ -327,37 +345,34 @@ function ProductForm({ onSubmit, editingProduct }) {
               <button type="button" onClick={() => setShowAddSubcategory(false)}>Huỷ</button>
             </div>
           )}
-
-          {/* Danh sách danh mục con có thể xoá */}
           {subcategories.length > 0 && (
             <ul className="cat-list-admin">
-    {subcategories.map(sub => (
-      <li key={sub._id} className="cat-tag">
-        <span className="cat-name">{sub.name}</span>
-        <button
-          type="button"
-          className="btn-delete-cat"
-          onClick={() => handleDeleteCategory(sub._id, true)}
-          title="Xoá danh mục"
-        ></button>
-      </li>
-    ))}
-  </ul>
+              {subcategories.map(sub => (
+                <li key={sub._id} className="cat-tag">
+                  <span className="cat-name">{sub.name}</span>
+                  <button
+                    type="button"
+                    className="btn-delete-cat"
+                    onClick={() => handleDeleteCategory(sub._id, true)}
+                    title="Xoá danh mục"
+                  ></button>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
-       <div className="flagship-checkbox-block">
-  <label className="flagship-checkbox-label">
-    <input
-      type="checkbox"
-      checked={!!form.flagship}
-      onChange={handleFlagshipChange}
-      className="flagship-checkbox-input"
-    />
-    <span className="flagship-checkbox-custom"></span>
-    <span className="flagship-checkbox-text">Sản phẩm Flagship</span>
-  </label>
-</div>
-
+        <div className="flagship-checkbox-block">
+          <label className="flagship-checkbox-label">
+            <input
+              type="checkbox"
+              checked={!!form.flagship}
+              onChange={handleFlagshipChange}
+              className="flagship-checkbox-input"
+            />
+            <span className="flagship-checkbox-custom"></span>
+            <span className="flagship-checkbox-text">Sản phẩm Flagship</span>
+          </label>
+        </div>
         <div className="full-width">
           <label>Mô tả sản phẩm</label>
           <textarea name="description" value={form.description} onChange={handleChange} />
@@ -367,7 +382,6 @@ function ProductForm({ onSubmit, editingProduct }) {
           <input type="file" accept="image/*" onChange={handleMainImageChange} />
         </div>
       </div>
-      {/* Biến thể */}
       {form.variants.map((variant, idx) => (
         <div key={idx} className="variant-block">
           <h4>🍀 Biến thể #{idx + 1}</h4>
@@ -375,8 +389,8 @@ function ProductForm({ onSubmit, editingProduct }) {
             <div><label>Màu</label><input name="color" value={variant.color} onChange={e => handleVariantChange(idx, e)} /></div>
             <div><label>RAM</label><input name="ram" value={variant.ram} onChange={e => handleVariantChange(idx, e)} /></div>
             <div><label>Bộ nhớ</label><input name="storage" value={variant.storage} onChange={e => handleVariantChange(idx, e)} /></div>
-            <div><label>Giá</label><input type="number" name="price" value={variant.price} onChange={e => handleVariantChange(idx, e)} /></div>
-            <div><label>Tồn kho</label><input type="number" name="stock" value={variant.stock} onChange={e => handleVariantChange(idx, e)} /></div>
+            <div><label>Giá</label><input type="number" name="price" value={variant.price} onChange={e => handleVariantChange(idx, e)} min="0" /></div>
+            <div><label>Tồn kho</label><input type="number" name="stock" value={variant.stock} onChange={e => handleVariantChange(idx, e)} min="0" /></div>
             <div className="full-width">
               <label>Ảnh minh hoạ</label>
               <input type="file" accept="image/*" onChange={e => handleImageUpload(e, idx)} />

@@ -8,7 +8,7 @@ exports.getAllProducts = async (req, res) => {
 
     if (category) filter.category = category;
     if (brand) filter.brand = brand;
-    if (type) filter.type = type; // Nếu bạn có field 'type' (thể loại)
+    if (type) filter.type = type;
     
     const products = await Product.find(filter);
     res.json(products);
@@ -17,12 +17,10 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
-
 // Hàm chuẩn hóa boolean cho trường flagship
 function parseFlagship(raw) {
   return raw === true || raw === 'true' || raw === 1 || raw === '1' || raw === 'on' || raw === 'checked';
 }
-
 
 // Tìm kiếm sản phẩm theo tên
 exports.searchProducts = async (req, res) => {
@@ -77,53 +75,71 @@ exports.sortProducts = async (req, res) => {
   }
 };
 
-
-// ======= PHẦN SỬA FLAGSHIP ========
-
-// Hàm chuẩn hoá boolean từ form data (FormData hoặc JSON)
-function parseFlagship(raw) {
-  return raw === true || raw === 'true' || raw === 1 || raw === '1';
-}
-
-
-
-
-
-
 // Tạo mới sản phẩm
 exports.createProduct = async (req, res) => {
   try {
     let { name, brand, description, variants, specs, content, category, subcategory, price, flagship } = req.body;
-    // Parse variants/specs như cũ
-    try {
-      variants = JSON.parse(variants);
-      specs = specs ? JSON.parse(specs) : [];
-    } catch (err) {
-      return res.status(400).json({ message: 'Trường variants hoặc specs không đúng định dạng JSON' });
+    console.log('Dữ liệu nhận được (createProduct):', req.body, 'File:', req.file);
+
+    // Xử lý variants
+    let variantsParsed = variants;
+    if (typeof variants === 'string') {
+      try {
+        variantsParsed = JSON.parse(variants);
+      } catch (err) {
+        console.error('Lỗi parse variants:', err.message);
+        return res.status(400).json({ message: 'Trường variants không đúng định dạng JSON', error: err.message });
+      }
     }
 
-    if (!name || !variants || !Array.isArray(variants) || variants.length === 0) {
+    // Xử lý specs
+    let specsParsed = specs;
+    if (typeof specs === 'string') {
+      try {
+        specsParsed = JSON.parse(specs) || [];
+      } catch (err) {
+        console.error('Lỗi parse specs:', err.message);
+        return res.status(400).json({ message: 'Trường specs không đúng định dạng JSON', error: err.message });
+      }
+    }
+
+    // Kiểm tra dữ liệu bắt buộc
+    if (!name || !variantsParsed || !Array.isArray(variantsParsed) || variantsParsed.length === 0) {
+      console.error('Dữ liệu bắt buộc thiếu:', { name, variantsParsed });
       return res.status(400).json({ message: 'Tên sản phẩm và variants là bắt buộc' });
     }
 
-    const processedVariants = variants.map((variant) => ({
-      color: variant.color || '',
-      ram: variant.ram || '',
-      storage: variant.storage || '',
-      price: Number(variant.price) || 0,
-      quantity: Number(variant.quantity) || 0,
-      images: Array.isArray(variant.images) ? variant.images : []
-    }));
+    // Xử lý variants
+    const processedVariants = variantsParsed.map((variant, index) => {
+      if (!variant || typeof variant !== 'object') {
+        console.error(`Biến thể không hợp lệ tại index ${index}:`, variant);
+        return res.status(400).json({ message: `Biến thể tại index ${index} không hợp lệ` });
+      }
+      const price = Number(variant.price);
+      const quantity = Number(variant.quantity);
+      if (isNaN(price) || isNaN(quantity)) {
+        console.error(`Giá hoặc số lượng không hợp lệ tại index ${index}:`, { price, quantity });
+        return res.status(400).json({ message: `Giá hoặc số lượng không hợp lệ tại biến thể ${index}` });
+      }
+      return {
+        color: variant.color || '',
+        ram: variant.ram || '',
+        storage: variant.storage || '',
+        price,
+        quantity,
+        images: Array.isArray(variant.images) ? variant.images : []
+      };
+    });
 
     const newProduct = new Product({
       name,
       brand: brand || '',
       description: description || '',
       variants: processedVariants,
-      specs: specs || [],
+      specs: specsParsed || [],
       content: content || '',
       category: category || '',
-      subcategory: subcategory || '',  // <== PHẢI BỔ SUNG DÒNG NÀY
+      subcategory: subcategory || '',
       price: Number(price) || 0,
       sold: 0,
       image: req.file?.filename || '',
@@ -133,61 +149,94 @@ exports.createProduct = async (req, res) => {
     await newProduct.save();
     res.status(201).json(newProduct);
   } catch (err) {
-    console.error('Lỗi tạo sản phẩm:', err);
+    console.error('Lỗi tạo sản phẩm:', err.message, err.stack);
     res.status(500).json({ message: 'Lỗi khi tạo sản phẩm', error: err.message });
   }
 };
 
-
-
-
-
-
-
 // Cập nhật sản phẩm
 exports.updateProduct = async (req, res) => {
   try {
-    let { name, brand, description, variants, specs, content, category, price, flagship } = req.body;
+    let { name, brand, description, variants, specs, content, category, subcategory, price, flagship } = req.body;
+    console.log('Dữ liệu nhận được (updateProduct):', req.body, 'File:', req.file);
 
+    // Xử lý variants
     let variantsParsed = variants;
     if (typeof variants === 'string') {
       try {
         variantsParsed = JSON.parse(variants);
-      } catch {
-        return res.status(400).json({ message: 'Trường variants không đúng định dạng JSON' });
+      } catch (err) {
+        console.error('Lỗi parse variants:', err.message);
+        return res.status(400).json({ message: 'Trường variants không đúng định dạng JSON', error: err.message });
       }
     }
 
+    // Xử lý specs
+    let specsParsed = specs;
+    if (typeof specs === 'string') {
+      try {
+        specsParsed = JSON.parse(specs) || [];
+      } catch (err) {
+        console.error('Lỗi parse specs:', err.message);
+        return res.status(400).json({ message: 'Trường specs không đúng định dạng JSON', error: err.message });
+      }
+    }
+
+    // Kiểm tra dữ liệu bắt buộc
     if (!name || !variantsParsed || !Array.isArray(variantsParsed) || variantsParsed.length === 0) {
+      console.error('Dữ liệu bắt buộc thiếu:', { name, variantsParsed });
       return res.status(400).json({ message: 'Tên sản phẩm và variants là bắt buộc' });
     }
 
-    const processedVariants = variantsParsed.map((variant) => ({
-      color: variant.color || '',
-      ram: variant.ram || '',
-      storage: variant.storage || '',
-      price: Number(variant.price) || 0,
-      quantity: Number(variant.quantity) || 0,
-      images: Array.isArray(variant.images) ? variant.images : []
-    }));
+    // Xử lý variants
+    const processedVariants = variantsParsed.map((variant, index) => {
+      if (!variant || typeof variant !== 'object') {
+        console.error(`Biến thể không hợp lệ tại index ${index}:`, variant);
+        return res.status(400).json({ message: `Biến thể tại index ${index} không hợp lệ` });
+      }
+      const price = Number(variant.price);
+      const quantity = Number(variant.quantity);
+      if (isNaN(price) || isNaN(quantity)) {
+        console.error(`Giá hoặc số lượng không hợp lệ tại index ${index}:`, { price, quantity });
+        return res.status(400).json({ message: `Giá hoặc số lượng không hợp lệ tại biến thể ${index}` });
+      }
+      return {
+        color: variant.color || '',
+        ram: variant.ram || '',
+        storage: variant.storage || '',
+        price,
+        quantity,
+        images: Array.isArray(variant.images) ? variant.images : []
+      };
+    });
 
+    // Tìm sản phẩm
     const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+    if (!product) {
+      console.error('Không tìm thấy sản phẩm:', req.params.id);
+      return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+    }
 
+    // Cập nhật dữ liệu
     product.name = name;
     product.brand = brand || product.brand;
     product.description = description || product.description;
     product.variants = processedVariants;
-    product.specs = specs || product.specs;
+    product.specs = specsParsed || product.specs;
     product.content = content || product.content;
     product.category = category || product.category;
+    product.subcategory = subcategory || product.subcategory;
     product.price = Number(price) || product.price;
     product.flagship = parseFlagship(flagship);
+    if (req.file) {
+      product.image = req.file.filename;
+    }
 
+    // Lưu sản phẩm
     await product.save();
     res.json(product);
   } catch (err) {
-    console.error('Lỗi cập nhật:', err);
+    console.error('Lỗi cập nhật sản phẩm:', err.message, err.stack);
     res.status(500).json({ message: 'Cập nhật sản phẩm thất bại', error: err.message });
   }
 };

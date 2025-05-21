@@ -63,16 +63,52 @@ const AdminProducts = () => {
       return;
     }
 
+    // Kiểm tra dữ liệu từ FormData
+    const name = productData.get('name');
+    const variantsStr = productData.get('variants');
+
+    if (!name || name.trim() === '') {
+      alert('❌ Tên sản phẩm là bắt buộc và không được để trống');
+      return;
+    }
+
+    let variants;
+    try {
+      variants = variantsStr ? JSON.parse(variantsStr) : [];
+      if (!Array.isArray(variants) || variants.length === 0) {
+        alert('❌ Variants phải là một mảng không rỗng');
+        return;
+      }
+      // Xác thực từng biến thể
+      for (let i = 0; i < variants.length; i++) {
+        const variant = variants[i];
+        if (!variant || typeof variant !== 'object' || isNaN(Number(variant.price)) || isNaN(Number(variant.quantity))) {
+          alert(`❌ Biến thể tại vị trí ${i} không hợp lệ hoặc giá/số lượng không phải là số`);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Lỗi parse variants ở frontend:', err);
+      alert('❌ Variants không đúng định dạng JSON');
+      return;
+    }
+
     try {
       let response;
       if (editingProduct) {
         response = await axios.put(`http://localhost:5001/api/products/${editingProduct._id}`, productData, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
         });
         alert('✅ Cập nhật sản phẩm thành công');
       } else {
         response = await axios.post('http://localhost:5001/api/products', productData, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
         });
         alert('✅ Thêm sản phẩm thành công');
       }
@@ -84,10 +120,11 @@ const AdminProducts = () => {
         setFiltered(newProducts);
         return newProducts;
       });
-      setEditingProduct(null);
+      setEditingProduct(null); // Đặt lại trạng thái chỉnh sửa
     } catch (err) {
-      console.error('❌ Lỗi khi lưu sản phẩm:', err);
-      alert('Thao tác thất bại: ' + (err.response?.data?.message || err.message));
+      console.error('❌ Lỗi khi lưu sản phẩm:', err, 'Response:', err.response?.data);
+      const errorMessage = err.response?.data?.message || err.message;
+      alert(`Thao tác thất bại: ${errorMessage}`);
     }
   };
 
@@ -124,8 +161,8 @@ const AdminProducts = () => {
               <tr key={index}>
                 <td>{p.name || 'Không có tên'}</td>
                 <td>
-                  {p.price != null && typeof p.price === 'number'
-                    ? `${p.price.toLocaleString()} VND`
+                  {p.variants && p.variants.length > 0 && typeof p.variants[0].price === 'number'
+                    ? `${p.variants[0].price.toLocaleString()} VND`
                     : 'Chưa cập nhật'}
                 </td>
                 <td>
